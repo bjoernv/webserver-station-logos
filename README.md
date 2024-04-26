@@ -1,17 +1,21 @@
 # Station Logo Plugin for [FM-DX-Webserver](https://github.com/NoobishSVK/fm-dx-webserver)
+![Screenshot3](https://github.com/Highpoint2000/webserver-station-logos/assets/168109804/c66bab09-045e-47d3-a719-9e269bb48a4a)
 
 Compatible from version 1.2.0
 
-![Screenshot3](https://github.com/Highpoint2000/webserver-station-logos/assets/168109804/c66bab09-045e-47d3-a719-9e269bb48a4a)
+(if you are still using an older version of the [FM-DX-Webserver](https://github.com/NoobishSVK/fm-dx-webserver), add the following line at the end of the /web/index.ejs: <script src="https://tef.noobish.eu/logos/scripts/js/updateStationLogo.js"></script>)
 
-### Installation Notes:
+
+
+### Installation notes:
 
 1. [Download](https://github.com/Highpoint2000/webserver-station-logos/releases) the last repository as a zip
 2. Unpack it into the plugin folder of the web server
 3. Restart the server
 4. Activate it in the settings
 
-If you are still using an older version of the [FM-DX-Webserver](https://github.com/NoobishSVK/fm-dx-webserver), add the following line at the end of the /web/index.ejs: <script src="https://tef.noobish.eu/logos/scripts/js/updateStationLogo.js"></script>
+Important notes: 
+In order for logos to be displayed, your own location in the web server must also be correctly entered and activated! Otherwise, the system cannot receive an ITU code of the sender location to display the logo. 
 
 The correct station logo should then be loaded during RDS recognition, provided a specific logo has already been created on our [server](https://tef.noobish.eu/logos/). 
 
