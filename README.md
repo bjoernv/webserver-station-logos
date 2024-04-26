@@ -19,6 +19,10 @@ In order for logos to be displayed, your own location in the web server must als
 
 The correct station logo should then be loaded during RDS recognition, provided a specific logo has already been created on our [server](https://tef.noobish.eu/logos/). 
 
+### Whats new in this version:
+- code optimizing
+- The script now also searches the local directory /web/logos
+
 ### Add missing logos:
 
 Please search for the missing logo on the Internet using Google - for example: https://www.google.com/search?q=park+fm+png+pl You can often find the correct files in PNG or SVG format with a transparent background. These fit very well into the look of the web server. For the PNG format a small variant is often sufficient, as we currently process a maximum of 140 pixels width and 60 pixels height. Basically the script fits the logos into the existing window. If you are creating logos for different countries, please put them in separate folders that you are welcome to use with the ITU names. Then simply send me the files or a download link via [email](mailto:highpoint2000@googlemail.com). I will upload them to our [server](https://tef.noobish.eu/logos/) as soon as possible.
