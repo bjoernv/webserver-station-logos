@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V2.1)			   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V2.2)			   ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas, code and design!  ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 25.04.24 ///
+///                                                          last update: 26.04.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -56,9 +56,10 @@ flagsContainerPhone.innerHTML = MobileHTML;
 
 //////////////// Display the Logo  ////////////////////////
 
-var serverpath = 'https://tef.noobish.eu/logos/'; // Server Path for Logo Collection
-var defaultImagePath = serverpath + 'default-logo.png'; // Display Standard Logo
-// var defaultImagePath = serverpath + 'empty-logo.png'; // No Display
+var serverpath = 'https://tef.noobish.eu/logos/'; // Server Path for official Logo Collection
+var localpath = '/logos/'; // Webdirectory Path for local Logo Collection
+var defaultServerPath = serverpath + 'default-logo.png'; // Display Standard Logo
+// var defaultServerPath = serverpath + 'empty-logo.png'; // No Display
 
 // Refresh the page after a delay of 1 second
 setInterval(CheckPI, 1000);
@@ -75,8 +76,7 @@ function CheckPI() {
     }
 
     if (piCode === '') {
-        // Führe die Funktion DefaultLogo aus, wenn piCode leer ist
-        logoImage.attr('src', defaultImagePath);
+        logoImage.attr('src', defaultServerPath);
         logoImage.attr('alt', 'Default Logo');
         window.piCode = piCode;
     } else {
@@ -85,64 +85,53 @@ function CheckPI() {
 }
 
 function updateStationLogo(piCode, logoImage) {
-
-    var piCodeContainer = $('#data-pi');
-    var piCode = piCodeContainer.text().trim().replace('?', '').replace('??', '');
-    var piCode = piCode.toUpperCase();
-
-    var ituCodeContainer = $('#data-station-itu');
-    var ituCode = ituCodeContainer.text().trim();
-
-    if (piCode != window.piCode || ituCode != window.ituCode) {
+    var ituCode = $('#data-station-itu').text().trim();
+    if (piCode !== window.piCode || ituCode !== window.ituCode) {
         window.piCode = piCode;
         window.ituCode = ituCode;
 
-        var imagePathGIF = serverpath + ituCode + '/' + piCode + '.gif';
-        var imagePathPNG = serverpath + ituCode + '/' + piCode + '.png';
-        var imagePathSVG = serverpath + ituCode + '/' + piCode + '.svg';
+        var paths = [
+            serverpath + ituCode + '/' + piCode + '.gif',
+            serverpath + ituCode + '/' + piCode + '.svg',
+            serverpath + ituCode + '/' + piCode + '.png',
+            localpath + piCode + '.gif',
+            localpath + piCode + '.svg',
+            localpath + piCode + '.png'
+        ];
 
-        // Exception rules for private stations
-        // if (piCode == 'C0DE' || piCode == 'ABCD' || piCode == 'CAFE') {
-        //    imagePathGIF = '/logos/' + piCode + '.gif';
-        //    imagePathPNG = '/logos/' + piCode + '.png';
-        //    imagePathSVG = '/logos/' + piCode + '.svg';
-        // }
+        // Function to set logo and alt
+        function setLogo(src, alt) {
+            logoImage.attr('src', src);
+            logoImage.attr('alt', alt);
+            logoImage.css('display', 'block');
+        }
 
         // Check if the specific PI code image exists
-        $.ajax({
-            url: imagePathGIF,
-            type: 'HEAD',
-            success: function() {
-                logoImage.attr('src', imagePathGIF);
-                logoImage.attr('alt', 'Logo for station ' + piCode);
-            },
-            error: function() {
-                $.ajax({
-                    url: imagePathPNG,
-                    type: 'HEAD',
-                    success: function() {
-                        logoImage.attr('src', imagePathPNG);
-                        logoImage.attr('alt', 'Logo for station ' + piCode);
-                    },
-                    error: function() {
-                        $.ajax({
-                            url: imagePathSVG,
-                            type: 'HEAD',
-                            success: function() {
-                                logoImage.attr('src', imagePathSVG);
-                                logoImage.attr('alt', 'Logo for station ' + piCode);
-                            },
-                            error: function() {
-                                logoImage.attr('src', defaultImagePath);
-                                logoImage.attr('alt', 'Default Logo');
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        var found = false;
+        var i = 0;
 
-        logoImage.css('display', 'block');
+        function checkNext() {
+            if (found || i >= paths.length) {
+                if (!found) {
+                    setLogo(defaultServerPath, 'Default Logo');
+                }
+                return;
+            }
+            $.ajax({
+                url: paths[i],
+                type: 'HEAD',
+                success: function() {
+                    setLogo(paths[i], 'Logo for station ' + piCode);
+                    found = true;
+                },
+                error: function() {
+                    i++;
+                    checkNext();
+                }
+            });
+        }
+
+        checkNext();
     }
 }
 
