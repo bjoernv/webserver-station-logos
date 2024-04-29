@@ -74,7 +74,7 @@ function CheckPI() {
     const sender = $('#data-station-name').text().trim();
     const tooltipContainer = $('.panel-30');
 
-    tooltipContainer.attr('data-tooltip', `Google Search the right or missing Logo, save as *${piCode}*.svg or *${piCode}*.png and send this with country info to highpoint2000@googlemail.com`);
+    tooltipContainer.attr('data-tooltip', `Google Search the right or missing Logo, save as *PI-Code*.svg or *PI-Code*.png and send this with country info to highpoint2000@googlemail.com`);
 
     if (piCode === '' || piCode.includes('?')) {
         tooltipContainer.trigger('mouseleave').css('background-color', '');
