@@ -19,7 +19,7 @@ In order for logos to be displayed, your own location in the web server must als
 
 The correct station logo should then be loaded during RDS recognition, provided a specific logo has already been created on our [server](https://tef.noobish.eu/logos/). 
 
-### version v2.21:
+### version v2.25:
 - Google Search Function
   -> When a RDS Station has been identified, the logo field is highlighted. Now you can click on the field and go directly to Google image search to download a suitable logo quickly and easily
 
