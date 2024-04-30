@@ -21,6 +21,14 @@ The correct station logo should then be loaded during RDS recognition, provided 
 
 ### version v2.25a:
 - optimized Google Search Function (ITU code added)
+  
+### version v2.25:
+- Google Search Function
+  -> When a RDS Station has been identified, the logo field is highlighted. Now you can click on the field and go directly to Google image search to download a suitable logo quickly and easily
+
+### version v2.2:
+- code optimizing
+- The script now also searches the local directory /web/logos
 
 ### Add missing logos:
 
