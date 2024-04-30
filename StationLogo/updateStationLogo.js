@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V2.25)			   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V2.25a)			   ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas, code and design!  ///
 ///                                                                                ///
