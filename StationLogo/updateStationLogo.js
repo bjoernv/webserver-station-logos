@@ -93,12 +93,12 @@ function updateStationLogo(currentImagePath, piCode, sender) {
         window.ituCode = ituCode;
 
         const paths = [
-            `${serverpath}${ituCode}/${piCode}.gif`,
-            `${serverpath}${ituCode}/${piCode}.svg`,
-            `${serverpath}${ituCode}/${piCode}.png`,
             `${localpath}${piCode}.gif`,
             `${localpath}${piCode}.svg`,
-            `${localpath}${piCode}.png`
+            `${localpath}${piCode}.png`,
+            `${serverpath}${ituCode}/${piCode}.gif`,
+            `${serverpath}${ituCode}/${piCode}.svg`,
+            `${serverpath}${ituCode}/${piCode}.png`
         ];
 
         let found = false;
