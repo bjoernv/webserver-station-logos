@@ -22,14 +22,6 @@ The correct station logo should then be loaded during RDS recognition, provided 
 ### version v2.25a:
 - optimized Google Search Function (ITU code added)
 
-### version v2.25:
-- Google Search Function
-  -> When a RDS Station has been identified, after a short time the logo field is highlighted. Now you can click on the field and go directly to Google image search to download a suitable logo quickly and easily
-
-### version v2.2:
-- code optimizing
-- The script now also searches the local directory /web/logos
-
 ### Add missing logos:
 
-Please use the integrated Google search function in V2.3. In most cases you can find the right logo this way. Many Logos are in PNG or SVG format with a transparent background. These fit very well into the look of the web server. For the PNG format a small variant is often sufficient, as we currently process a maximum of 140 pixels width and 60 pixels height. Basically the script fits the logos into the existing window. If you are creating logos for different countries, please put them in separate folders that you are welcome to use with the ITU names. Then simply send me the files or a download link via [email](mailto:highpoint2000@googlemail.com). I will upload them to our [server](https://tef.noobish.eu/logos/) as soon as possible.
+Please use the integrated Google search function in V2.2 or V2.2a. In most cases you can find the right logo this way. Many Logos are in PNG or SVG format with a transparent background. These fit very well into the look of the web server. For the PNG format a small variant is often sufficient, as we currently process a maximum of 140 pixels width and 60 pixels height. Basically the script fits the logos into the existing window. If you are creating logos for different countries, please put them in separate folders that you are welcome to use with the ITU names. Then simply send me the files or a download link via [email](mailto:highpoint2000@googlemail.com). I will upload them to our [server](https://tef.noobish.eu/logos/) as soon as possible.
