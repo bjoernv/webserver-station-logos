@@ -19,6 +19,9 @@ In order for logos to be displayed, your own location in the web server must als
 
 The correct station logo should then be loaded during RDS recognition, provided a specific logo has already been created on our [server](https://tef.noobish.eu/logos/). 
 
+### version v2.25b:
+- Tooltip has been bugfixed
+
 ### version v2.25a:
 - optimized Google Search Function (ITU code added)
   
