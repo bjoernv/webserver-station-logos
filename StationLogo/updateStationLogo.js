@@ -145,7 +145,7 @@ function LogoSearch(piCode) {
     function addClickListener(currentSender) {
         tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
             const ituCode = $('#data-station-itu').text().trim();
-            const searchQuery = currentSender + ' SVG PNG Radio&tbs=sbd:1&udm=2';
+            const searchQuery = currentSender + ' ' + ituCode + ' SVG PNG Radio&tbs=sbd:1&udm=2';
             window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
         });
     }
