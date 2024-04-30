@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V2.25b)			   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V2.25c)			   ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas, code and design!  ///
 ///                                                                                ///
@@ -135,7 +135,6 @@ function updateStationLogo(currentImagePath, piCode, sender) {
     }
 }
 
-
 var previousSender = ''; // Global variable to store the previous sender
 
 function LogoSearch(piCode) {
@@ -143,11 +142,13 @@ function LogoSearch(piCode) {
     tooltipContainer.css('background-color', '').off('click').css('cursor', 'auto');
 
     function addClickListener(currentSender) {
-        tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
-            const ituCode = $('#data-station-itu').text().trim();
-			const ituCodeCurrentSender = currentSender + ' ' + ituCode;
-            const searchQuery = ituCodeCurrentSender + ' SVG PNG Radio&tbs=sbd:1&udm=2';
-            window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
+		const ituCode = $('#data-station-itu').text().trim();
+		const country_name = getCountryNameByItuCode(ituCode); // Get the country name for the ITU code
+		//console.log(`Country for ITU Code ${ituCode}: ${country_name}`);
+		const ituCodeCurrentSender = currentSender + ' ' + country_name; // currentSender um den Ländernamen erweitern
+		const searchQuery = ituCodeCurrentSender + ' filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2';
+		tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
+			window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
         });
     }
 
@@ -162,4 +163,206 @@ function LogoSearch(piCode) {
     }
 
     checkSender();
+}
+
+// The list of countries and their ITU codes
+const countryList = [
+  { itu_code: "AFG", country: "Afghanistan" },
+  { itu_code: "AFS", country: "South Africa" },
+  { itu_code: "AGL", country: "Angola" },
+  { itu_code: "ALB", country: "Albania" },
+  { itu_code: "ALG", country: "Algeria" },
+  { itu_code: "AND", country: "Andorra" },
+  { itu_code: "ARG", country: "Argentina" },
+  { itu_code: "ARM", country: "Armenia" },
+  { itu_code: "ARS", country: "Saudi Arabia" },
+  { itu_code: "ATG", country: "Antigua and Barbuda" },
+  { itu_code: "AUS", country: "Australia" },
+  { itu_code: "AUT", country: "Austria" },
+  { itu_code: "AZE", country: "Azerbaijan" },
+  { itu_code: "BAH", country: "Bahamas" },
+  { itu_code: "BDI", country: "Burundi" },
+  { itu_code: "BEL", country: "Belgium" },
+  { itu_code: "BEN", country: "Benin" },
+  { itu_code: "BFA", country: "Burkina Faso" },
+  { itu_code: "BGD", country: "Bangladesh" },
+  { itu_code: "BHR", country: "Bahrain" },
+  { itu_code: "BIH", country: "Bosnia and Herzegovina" },
+  { itu_code: "BLR", country: "Belarus" },
+  { itu_code: "BLZ", country: "Belize" },
+  { itu_code: "BOL", country: "Bolivia" },
+  { itu_code: "BOT", country: "Botswana" },
+  { itu_code: "BRB", country: "Barbados" },
+  { itu_code: "BRM", country: "Myanmar" },
+  { itu_code: "BRU", country: "Brunei Darussalam" },
+  { itu_code: "BTN", country: "Bhutan" },
+  { itu_code: "BUL", country: "Bulgaria" },
+  { itu_code: "CAF", country: "Central African Republic" },
+  { itu_code: "CAN", country: "Canada" },
+  { itu_code: "CBG", country: "Cambodia" },
+  { itu_code: "CHL", country: "Chile" },
+  { itu_code: "CHN", country: "China" },
+  { itu_code: "CLM", country: "Colombia" },
+  { itu_code: "CLN", country: "Sri Lanka" },
+  { itu_code: "CME", country: "Cameroon" },
+  { itu_code: "COD", country: "Democratic Republic of the Congo" },
+  { itu_code: "COG", country: "Congo" },
+  { itu_code: "COM", country: "Comoros" },
+  { itu_code: "CPV", country: "Cape Verde" },
+  { itu_code: "CTI", country: "Ivory Coast" },
+  { itu_code: "CTR", country: "Costa Rica" },
+  { itu_code: "CUB", country: "Cuba" },
+  { itu_code: "CVA", country: "Vatican City" },
+  { itu_code: "CYP", country: "Cyprus" },
+  { itu_code: "CZE", country: "Czech Republic" },
+  { itu_code: "D", country: "Germany" },
+  { itu_code: "DJI", country: "Djibouti" },
+  { itu_code: "DMA", country: "Dominica" },
+  { itu_code: "DNK", country: "Denmark" },
+  { itu_code: "DOM", country: "Dominican Republic" },
+  { itu_code: "E", country: "Spain" },
+  { itu_code: "EGY", country: "Egypt" },
+  { itu_code: "EQA", country: "Ecuador" },
+  { itu_code: "ERI", country: "Eritrea" },
+  { itu_code: "EST", country: "Estonia" },
+  { itu_code: "ETH", country: "Ethiopia" },
+  { itu_code: "F", country: "France" },
+  { itu_code: "FIN", country: "Finland" },
+  { itu_code: "FJI", country: "Fiji" },
+  { itu_code: "FSM", country: "Micronesia" },
+  { itu_code: "G", country: "United Kingdom" },
+  { itu_code: "GAB", country: "Gabon" },
+  { itu_code: "GEO", country: "Georgia" },
+  { itu_code: "GHA", country: "Ghana" },
+  { itu_code: "GMB", country: "Gambia" },
+  { itu_code: "GNB", country: "Guinea-Bissau" },
+  { itu_code: "GNE", country: "Equatorial Guinea" },
+  { itu_code: "GRC", country: "Greece" },
+  { itu_code: "GRD", country: "Grenada" },
+  { itu_code: "GTM", country: "Guatemala" },
+  { itu_code: "GUI", country: "Guinea" },
+  { itu_code: "GUY", country: "Guyana" },
+  { itu_code: "H", country: "Honduras" },
+  { itu_code: "HNG", country: "Hungary" },
+  { itu_code: "HOL", country: "Netherlands" },
+  { itu_code: "HRV", country: "Croatia" },
+  { itu_code: "HTI", country: "Haiti" },
+  { itu_code: "I", country: "Italy" },
+  { itu_code: "IND", country: "India" },
+  { itu_code: "INS", country: "Indonesia" },
+  { itu_code: "IRL", country: "Ireland" },
+  { itu_code: "IRN", country: "Iran" },
+  { itu_code: "IRQ", country: "Iraq" },
+  { itu_code: "ISL", country: "Iceland" },
+  { itu_code: "ISR", country: "Israel" },
+  { itu_code: "J", country: "Japan" },
+  { itu_code: "JMC", country: "Jamaica" },
+  { itu_code: "JOR", country: "Jordan" },
+  { itu_code: "KAZ", country: "Kazakhstan" },
+  { itu_code: "KEN", country: "Kenya" },
+  { itu_code: "KGZ", country: "Kyrgyzstan" },
+  { itu_code: "KIR", country: "Kiribati" },
+  { itu_code: "KNA", country: "Saint Kitts and Nevis" },
+  { itu_code: "KOR", country: "Korea" },
+  { itu_code: "KRE", country: "North Korea" },
+  { itu_code: "KWT", country: "Kuwait" },
+  { itu_code: "L", country: "Laos" },
+  { itu_code: "LBN", country: "Lebanon" },
+  { itu_code: "LBR", country: "Liberia" },
+  { itu_code: "LBY", country: "Libya" },
+  { itu_code: "LCA", country: "Saint Lucia" },
+  { itu_code: "LIE", country: "Liechtenstein" },
+  { itu_code: "LSO", country: "Lesotho" },
+  { itu_code: "LTU", country: "Lithuania" },
+  { itu_code: "LUX", country: "Luxembourg" },
+  { itu_code: "LVA", country: "Latvia" },
+  { itu_code: "MAU", country: "Mauritius" },
+  { itu_code: "MCO", country: "Monaco" },
+  { itu_code: "MDA", country: "Moldova" },
+  { itu_code: "MDG", country: "Madagascar" },
+  { itu_code: "MEX", country: "Mexico" },
+  { itu_code: "MHL", country: "Marshall Islands" },
+  { itu_code: "MKD", country: "Macedonia" },
+  { itu_code: "MLA", country: "Malaysia" },
+  { itu_code: "MLD", country: "Maldives" },
+  { itu_code: "MLI", country: "Mali" },
+  { itu_code: "MLT", country: "Malta" },
+  { itu_code: "MNE", country: "Montenegro" },
+  { itu_code: "MNG", country: "Mongolia" },
+  { itu_code: "MOZ", country: "Mozambique" },
+  { itu_code: "MRC", country: "Morocco" },
+  { itu_code: "MTN", country: "Mauritania" },
+  { itu_code: "MWI", country: "Malawi" },
+  { itu_code: "NCG", country: "Nicaragua" },
+  { itu_code: "NGR", country: "Niger" },
+  { itu_code: "NIG", country: "Nigeria" },
+  { itu_code: "NMB", country: "Namibia" },
+  { itu_code: "NOR", country: "Norway" },
+  { itu_code: "NPL", country: "Nepal" },
+  { itu_code: "NRU", country: "Nauru" },
+  { itu_code: "NZL", country: "New Zealand" },
+  { itu_code: "OMA", country: "Oman" },
+  { itu_code: "PAK", country: "Pakistan" },
+  { itu_code: "PHL", country: "Philippines" },
+  { itu_code: "PNG", country: "Papua New Guinea" },
+  { itu_code: "PNR", country: "Panama" },
+  { itu_code: "POL", country: "Poland" },
+  { itu_code: "POR", country: "Portugal" },
+  { itu_code: "PRG", country: "Paraguay" },
+  { itu_code: "PRU", country: "Peru" },
+  { itu_code: "QAT", country: "Qatar" },
+  { itu_code: "ROU", country: "Romania" },
+  { itu_code: "RRW", country: "Rwanda" },
+  { itu_code: "RUS", country: "Russia" },
+  { itu_code: "S", country: "Sweden" },
+  { itu_code: "SDN", country: "Sudan" },
+  { itu_code: "SEN", country: "Senegal" },
+  { itu_code: "SEY", country: "Seychelles" },
+  { itu_code: "SLM", country: "Solomon Islands" },
+  { itu_code: "SLV", country: "El Salvador" },
+  { itu_code: "SMO", country: "Samoa" },
+  { itu_code: "SMR", country: "San Marino" },
+  { itu_code: "SNG", country: "Singapore" },
+  { itu_code: "SOM", country: "Somalia" },
+  { itu_code: "SRB", country: "Serbia" },
+  { itu_code: "SRL", country: "Sierra Leone" },
+  { itu_code: "SSD", country: "South Sudan" },
+  { itu_code: "STP", country: "São Tomé and Príncipe" },
+  { itu_code: "SUI", country: "Switzerland" },
+  { itu_code: "SUR", country: "Suriname" },
+  { itu_code: "SVK", country: "Slovakia" },
+  { itu_code: "SVN", country: "Slovenia" },
+  { itu_code: "SWZ", country: "Swaziland" },
+  { itu_code: "SYR", country: "Syria" },
+  { itu_code: "TCD", country: "Chad" },
+  { itu_code: "TGO", country: "Togo" },
+  { itu_code: "THA", country: "Thailand" },
+  { itu_code: "TJK", country: "Tajikistan" },
+  { itu_code: "TKM", country: "Turkmenistan" },
+  { itu_code: "TLS", country: "Timor-Leste" },
+  { itu_code: "TON", country: "Tonga" },
+  { itu_code: "TRD", country: "Trinidad and Tobago" },
+  { itu_code: "TUN", country: "Tunisia" },
+  { itu_code: "TUR", country: "Turkey" },
+  { itu_code: "TUV", country: "Tuvalu" },
+  { itu_code: "TZA", country: "Tanzania" },
+  { itu_code: "UAE", country: "United Arab Emirates" },
+  { itu_code: "UGA", country: "Uganda" },
+  { itu_code: "UKR", country: "Ukraine" },
+  { itu_code: "URG", country: "Uruguay" },
+  { itu_code: "USA", country: "United States of America" },
+  { itu_code: "UZB", country: "Uzbekistan" },
+  { itu_code: "VCT", country: "Saint Vincent and the Grenadines" },
+  { itu_code: "VEN", country: "Venezuela" },
+  { itu_code: "VTN", country: "Vietnam" },
+  { itu_code: "VUT", country: "Vanuatu" },
+  { itu_code: "YEM", country: "Yemen" },
+  { itu_code: "ZMB", country: "Zambia" },
+  { itu_code: "ZWE", country: "Zimbabwe" }
+];
+
+// Function to query the country name using the ITU code
+function getCountryNameByItuCode(ituCode) {
+  const country = countryList.find(item => item.itu_code === ituCode.toUpperCase());
+  return country ? country.country : "Country not found";
 }
