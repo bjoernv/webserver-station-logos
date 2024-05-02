@@ -5,6 +5,8 @@ Compatible from version 1.2.0
 
 ## Installation notes:
 
+#### For anyone who would like to receive their future updates automatically, please install the Always on Update (AOU) version from [here](https://tef.noobish.eu/logos/scripts/StationLogo_AOU_Version.zip). This script always gets the current code from the logo server.
+
 1. [Download](https://github.com/Highpoint2000/webserver-station-logos/releases) the last repository as a zip
 2. Unpack it into the plugins folder in the root of the web server
 3. Restart the server
