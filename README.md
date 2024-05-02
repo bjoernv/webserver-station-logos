@@ -20,6 +20,10 @@ For missing or incorrect logos, please use the integrated Google search function
 
 ## History:
 
+### version v3.0:
+- additional logo query via the Lyngsat website
+- fixed missing display of TP/TA/MO/ST on mobile devices
+
 ### version v2.25c:
 - local folder "/web/logos" is prioritized
 - further optimized Google Search Function (e.g. country name added)
