@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.0)						   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.1 BETA)					   ///
 ///                                                                                /// 
-///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  ///
+///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 02.05.24 ///
+///                                                          last update: 03.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -201,84 +201,87 @@ function getCountryNameByItuCode(ituCode) {
   return country ? country.country : "Country not found";
 }
 
+// Function to query the country name using the ITU code
+function getCountryNameByItuCode(ituCode) {
+  // Find the country name corresponding to the ITU code
+  const country = countryList.find(item => item.itu_code === ituCode.toUpperCase());
+  return country ? country.country : "Country not found";
+}
+
+// Function to compare the current sender with the image titles and select the most similar image
+async function compareAndSelectImage(currentSender, imgSrcElements) {
+    let minDistance = Infinity;
+    let selectedImgSrc = null;
+
+    // Loop through all found image titles
+    imgSrcElements.forEach(imgSrcElement => {
+        // Extract the title of the image
+        const title = imgSrcElement.getAttribute('title');
+
+        // Calculate the Levenshtein distance between the current sender and the image title
+        const distance = Math.abs(currentSender.toLowerCase().localeCompare(title.toLowerCase()));
+
+        // Update the selected image URL if the distance is smaller than the current minimum distance
+        if (distance < minDistance) {
+            minDistance = distance;
+            selectedImgSrc = imgSrcElement.getAttribute('src');
+        }
+    });
+
+    // Add "https://" to the beginning if not present
+    if (selectedImgSrc && !selectedImgSrc.startsWith('https://')) {
+        selectedImgSrc = 'https:' + selectedImgSrc;
+    }
+
+    return selectedImgSrc;
+}
+
+// Function to fetch and process the page via the proxy
+async function parsePage(url, currentSender) {
+    try {
+        // Fetch the HTML content of the page
+        const corsAnywhereUrl = 'https://cors-anywhere.herokuapp.com/';
+        const response = await fetch(`${corsAnywhereUrl}${url}`);
+        const html = await response.text();
+
+        // Parse the HTML content and extract the necessary information
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // Dynamic search for images with titles
+        const imgSrcElements = doc.querySelectorAll('img[class="station__title__logo"]');
+
+        // Compare the current sender with the image titles and select the most similar image
+        const selectedImgSrc = await compareAndSelectImage(currentSender, imgSrcElements);
+        
+        // Further processing steps here, such as assigning the link to an image element or other actions
+        console.log('The selected image source is:', selectedImgSrc);
+		logoImage.attr('src', selectedImgSrc).attr('alt', 'Onlineradiobox Logo');
+    } catch (error) {
+        // Handle errors fetching and processing the page
+        console.error('Error fetching and processing the page:', error);
+		logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo');
+    }
+}
+
 // Definition of the LyngsatSearch function in a separate module
 async function LyngsatSearch(currentSender, ituCode) {
-    // Sanitize station name for image search
-    const sanitizedStationName = currentSender.toLowerCase().replace(/\s/g, '_').replace(/\./g, '');
+    // Replace spaces in currentSender with %20
+    currentSender = currentSender.replace(/\s/g, '%20');
+    
     // Find the selected country information based on the ITU code
     const selectedCountry = countryList.find(item => item.itu_code === ituCode);
     const selectedCountryCode = selectedCountry ? selectedCountry.country_code : null;
 
-    // Function to download images based on station name and country code
-    async function downloadImages(countryCode, useUnderscore) {
-        const firstChar = sanitizedStationName.charAt(0);
-        const StationNameCode = /^\d$/.test(firstChar) ? 'num' : firstChar.repeat(2).toLowerCase();
+    // The URL of the search page
+    const searchUrl = `https://onlineradiobox.com/search?cs=${selectedCountryCode}&q=${currentSender}`;
+    console.log('The Search-URL is:', searchUrl);
 
-        const separators = ['_', '', '-'];
-        const extensions = ['png', 'svg'];
-
-        for (const separator of separators) {
-            for (const ext of extensions) {
-                let fileNames;
-				fileNames = [
-					`${sanitizedStationName.replace(/_/g, separator)}${separator}${countryCode}.${ext}`,
-					`${sanitizedStationName.replace(/_/g, separator)}.${ext}`,
-					`${sanitizedStationName.replace(/_/g, separator)}-${countryCode}.${ext}`,
-				];
-                
-                for (const fileName of fileNames) {
-                    const imageUrl = `https://www.lyngsat.com/logo/radio/${StationNameCode}/${fileName}`;
-
-                    console.log(`Downloading image for ${countryCode} from ${imageUrl}`);
-
-                    const image = new Image();
-                    image.src = imageUrl;
-
-                    // Monitor image loading
-                    await new Promise((resolve, reject) => {
-                        image.onload = () => {
-                            // If the image is loaded successfully, return the URL
-                            resolve(imageUrl);
-                        };
-                        image.onerror = (error) => {
-                            // If an error occurs, log the error and continue the loop
-                            console.error('Error loading image:', error);
-                            resolve(null);
-                        };
-                    });
-
-                    // If the image is loaded successfully, return the URL
-                    if (image.complete && image.naturalWidth !== 0) {
-                        return imageUrl;
-                    }
-                }
-            }
-        }
-
-        // If none of the files are found, return null
-        return null;
-    }
-
-    try {
-        // Try with underscores first
-        const imageUrlWithUnderscore = await downloadImages(selectedCountryCode, true);
-
-        // If an image with underscores is found, load it
-        if (imageUrlWithUnderscore) {
-            console.log(`Image successfully loaded: ${imageUrlWithUnderscore}`);
-            // Set the image as the source for the logo element
-            logoImage.attr('src', imageUrlWithUnderscore).attr('alt', 'Logo');
-            return;
-        }
-    } catch (error) {
-        // If an error occurs while loading the image with underscores, fall back to loading with hyphens
-        console.error('Error loading image with underscores:', error);
-    }
-    
-    // If no image with underscores is found or an error occurs, set the default logo
-    console.log('Default logo set: ' + defaultServerPath);
-    logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo');
+    // Call the function to fetch and process the search page HTML content via the proxy
+    await parsePage(searchUrl, currentSender); // Pass currentSender to parsePage
 }
+
+
+
 
 // The list of countries and their ITU codes
 const countryList = [
