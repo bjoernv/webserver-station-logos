@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.1 BETA)	                   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.11 BETA)                   ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
@@ -169,43 +169,50 @@ function updateStationLogo(piCode) {
 // Function for logo search
 function LogoSearch(piCode, found) {
     var previousPiCode = ''; // Global variable to store the previous piCode
-	var currentSender = ''; // Global variable to store the currentSender
+	var currentStation = ''; // Global variable to store the currentStation
+	var currentFrequency = ''; // Global variable to store the currentFrequency
 
     const currentPiCode = piCode; // Get the current piCode
     const tooltipContainer = $('.panel-30');
     tooltipContainer.css('background-color', '').off('click').css('cursor', 'auto');
 
-    function addClickListener(currentSender, found) {
+    function addClickListener(currentStation, found) {
         const ituCode = $('#data-station-itu').text().trim();
         const country_name = getCountryNameByItuCode(ituCode); // Get the country name for the ITU code
-        const ituCodeCurrentSender = currentSender + ' ' + country_name; // Append country name to currentSender
-        const searchQuery = ituCodeCurrentSender + ' filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2';
+        const ituCodecurrentStation = currentStation + ' ' + country_name; // Append country name to currentStation
+        const searchQuery = ituCodecurrentStation + ' filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2';
         tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
             window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
         });
         logoImage.css('cursor', 'pointer'); 
-        console.log(`Logo found: ${found}`);
+        // console.log(`Logo found: ${found}`);
         if (!found && logoImage.attr('src') === emptyServerPath) {
-            OnlineradioboxSearch(currentSender, ituCode);
+            OnlineradioboxSearch(currentStation, ituCode);
         }
     }
 
 let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
 
 function checkSender() {
-    const currentSender = $('#data-station-name').text().trim();
-    if (currentSender) {
-        addClickListener(currentSender, found);
-    }
+    const currentStation = $('#data-station-name').text().trim();
+    const currentFrequency = $('#data-frequency').text().trim();
 
-    // Only set setTimeout for checkSender if it's not already set
-    if (!isCheckSenderSet) {
-        setTimeout(checkSender, 1000);
-        isCheckSenderSet = true; // Set the flag to true after setting the setTimeout
+    //console.log(`currentStation: ${currentStation}`);
+    //console.log(`currentFrequency: ${currentFrequency}`);
+
+    if (currentStation && currentFrequency !== window.previousFrequency && window.previousSender !== currentStation) {
+        console.log(`loop pass end`);
+        window.previousFrequency = currentFrequency;
+        window.previousSender = currentStation;
+        addClickListener(currentStation, found);
+    } else {
+        // Wenn die Bedingung nicht erfüllt ist, rufe die Funktion erneut auf
+        setTimeout(checkSender, 500);
     }
 }
 
-setTimeout(checkSender, 5000); // Initial setTimeout for checkSender
+checkSender();
+
 
 }
 
@@ -216,7 +223,7 @@ function getCountryNameByItuCode(ituCode) {
 }
 
 // Function to compare the current sender with the image titles and select the most similar image
-async function compareAndSelectImage(currentSender, imgSrcElements) {
+async function compareAndSelectImage(currentStation, imgSrcElements) {
     let minDistance = Infinity;
     let selectedImgSrc = null;
 
@@ -226,7 +233,7 @@ async function compareAndSelectImage(currentSender, imgSrcElements) {
         const title = imgSrcElement.getAttribute('title');
 
         // Calculate the Levenshtein distance between the current sender and the image title
-        const distance = Math.abs(currentSender.toLowerCase().localeCompare(title.toLowerCase()));
+        const distance = Math.abs(currentStation.toLowerCase().localeCompare(title.toLowerCase()));
 
         // Update the selected image URL if the distance is smaller than the current minimum distance
         if (distance < minDistance) {
@@ -244,7 +251,7 @@ async function compareAndSelectImage(currentSender, imgSrcElements) {
 }
 
 // Function to fetch and process the page via the proxy
-async function parsePage(url, currentSender) {
+async function parsePage(url, currentStation) {
     try {
         // Fetch the HTML content of the page
         const corsAnywhereUrl = 'http://89.58.28.164:13128/';
@@ -258,7 +265,7 @@ async function parsePage(url, currentSender) {
         const imgSrcElements = doc.querySelectorAll('img[class="station__title__logo"]');
 
         // Compare the current sender with the image titles and select the most similar image
-        const selectedImgSrc = await compareAndSelectImage(currentSender, imgSrcElements);
+        const selectedImgSrc = await compareAndSelectImage(currentStation, imgSrcElements);
         
         // Further processing steps here, such as assigning the link to an image element or other actions
         console.log('The selected image source is:', selectedImgSrc);
@@ -273,21 +280,21 @@ async function parsePage(url, currentSender) {
 }
 
 // Definition of the OnlineradioboxSearch function in a separate module
-async function OnlineradioboxSearch(currentSender, ituCode) {
+async function OnlineradioboxSearch(currentStation, ituCode) {
 
-        // Replace spaces in currentSender with %20
-        currentSender = currentSender.replace(/\s/g, '%20');
+        // Replace spaces in currentStation with %20
+        currentStation = currentStation.replace(/\s/g, '%20');
         
         // Find the selected country information based on the ITU code
         const selectedCountry = countryList.find(item => item.itu_code === ituCode);
         const selectedCountryCode = selectedCountry ? selectedCountry.country_code : null;
 
         // The URL of the search page
-        const searchUrl = `https://onlineradiobox.com/search?cs=${selectedCountryCode}&q=${currentSender}`;
+        const searchUrl = `https://onlineradiobox.com/search?cs=${selectedCountryCode}&q=${currentStation}`;
         console.log('The Search-URL is:', searchUrl);
 
         // Call the function to fetch and process the search page HTML content via the proxy
-        await parsePage(searchUrl, currentSender); // Pass currentSender to parsePage
+        await parsePage(searchUrl, currentStation); // Pass currentStation to parsePage
     }
 
 
