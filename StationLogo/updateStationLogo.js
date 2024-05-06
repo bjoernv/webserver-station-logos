@@ -290,17 +290,12 @@ async function OnlineradioboxSearch(currentStation, ituCode) {
         const selectedCountryCode = selectedCountry ? selectedCountry.country_code : null;
 
         // The URL of the search page
-        const searchUrl = `https://onlineradiobox.com/search?cs=${selectedCountryCode}&q=${currentStation}`;
+        const searchUrl = `https://onlineradiobox.com/search?c=${selectedCountryCode}&cs=${selectedCountryCode}&q=${currentStation}`;
         console.log('The Search-URL is:', searchUrl);
 
         // Call the function to fetch and process the search page HTML content via the proxy
         await parsePage(searchUrl, currentStation); // Pass currentStation to parsePage
     }
-
-
-
-
-
 
 // The list of countries and their ITU codes
 const countryList = [
