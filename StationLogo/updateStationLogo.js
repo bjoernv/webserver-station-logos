@@ -6,31 +6,22 @@
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 03.05.24 ///
+///                                                          last update: 06.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
-// Inject Logo Code for Desktop Devices //
+//////////////// Inject Logo Code for Desktop Devices ////////////////////////
 
-// Select the parent <div> element
-var parentDiv = document.querySelector('.panel-75.flex-container.no-bg');
+// Define the HTML code as a string
+var newHtml = '<div style="width: 5%;"></div> <!-- Spacer -->' +
+    '<div class="panel-30 m-0 hide-phone tooltip" style="width: 48%" data-tooltip="">' +
+    '    <div id="logo-container-desktop" style="width: auto; height: 60px; display: flex; justify-content: center; align-items: center; margin: auto;">' +
+    '        <img id="station-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC" alt="station-logo-desktop" style="max-width: 140px; padding: 1px 2px; max-height: 100%; margin-top: 30px; display: block; cursor: pointer;">' +
+    '    </div>' +
+    '</div>';
 
-// Create the new HTML code
-const DesktopHTML = `
-    <div class="panel-10 no-bg h-50 m-0 m-right-20 hide-phone" style="width: 100px;height: 100%;margin-right: 20px !important;">
-        <button class="playbutton" aria-label="Play / Stop Button"><i class="fa-solid fa-play fa-lg"></i></button>
-    </div>
-    <div class="panel-75 m-0 m-right-20 hover-brighten flex-center tooltip" id="ps-container" style="height: 90px;margin-right: 20px!important" data-tooltip="Clicking on the RDS PS will copy the RDS info into the clipboard.">
-        <span class="text-big" id="data-ps"></span>
-    </div>
-    <div class="panel-30 m-0 hide-phone tooltip" style="width: 35%" data-tooltip="">
-        <div id="logo-container-desktop" style="width: auto; height: 60px; display: flex; justify-content: center; align-items: center; margin: auto;">                 
-            <img id="station-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC" alt="station-logo-desktop" style="max-width: 140px; padding: 1px 2px; max-height: 100%; margin-top: 30px; display: block; cursor: pointer;">	
-        </div>
-    </div>
-`;
-
-parentDiv.innerHTML = DesktopHTML;
+// Insert the new HTML code after the named <div>
+document.getElementById("ps-container").insertAdjacentHTML('afterend', newHtml);
 
 //////////////// Inject Logo Code for Mobile Devices ////////////////////////
 
