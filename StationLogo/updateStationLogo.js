@@ -108,48 +108,63 @@ function updateStationLogo(piCode, sender) {
 
         // Define paths for logo images
         const paths = [
-            `${localpath}${piCode}.gif`,
-            `${localpath}${piCode}.svg`,
-            `${localpath}${piCode}.png`,
-            `${serverpath}${ituCode}/${piCode}.gif`,
-            `${serverpath}${ituCode}/${piCode}.svg`,
-            `${serverpath}${ituCode}/${piCode}.png`
+            `${localpath}${piCode}`,
+            `${serverpath}${ituCode}/${piCode}`
         ];
 
+        const supportedExtensions = ['png', 'gif', 'svg']; // List of supported file extensions
+
         let found = false;
-        let i = 0;
 
         // Function to check each path for logo image
-        function checkNext() {
-            if (found || i >= paths.length) {
+        function checkNextPath(index) {
+            if (found || index >= paths.length) {
                 if (!found) {
                     logoImage.attr('src', emptyServerPath).attr('alt', 'Empty Logo');
                     LogoSearch(piCode, sender, found); // Call LogoSearch() if no logo is found
                 }
                 return;
             }
-            const xhr = new XMLHttpRequest();
-            xhr.open('HEAD', paths[i], true);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-					console.log(`Downloading image from ${paths[i]}`);
-                    logoImage.attr('src', paths[i]).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
-                    found = true;
-                } else {
-                    i++;
-                    checkNext();
+
+            const path = paths[index];
+
+            // Function to check each extension for logo image
+            function checkNextExtension(extensionIndex) {
+                if (found || extensionIndex >= supportedExtensions.length) {
+                    if (!found) {
+                        checkNextPath(index + 1); // If no supported extension found, move to the next path
+                    }
+                    return;
                 }
-            };
-            xhr.onerror = function () { // Handling error cases
-                i++;
-                checkNext();
-            };
-            xhr.send();
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('HEAD', `${path}.${supportedExtensions[extensionIndex]}`, true);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        console.log(`Downloading image from ${path}.${supportedExtensions[extensionIndex]}`);
+                        logoImage.attr('src', `${path}.${supportedExtensions[extensionIndex]}`).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
+                        found = true;
+                    } else if (xhr.status === 404) {
+                        checkNextExtension(extensionIndex + 1); // Try next extension if file not found
+                    }
+                };
+                xhr.onerror = function () { // Handling error cases
+                    checkNextExtension(extensionIndex + 1); // Try next extension
+                };
+                xhr.send();
+            }
+
+            checkNextExtension(0); // Start checking extensions
         }
 
-        checkNext();
+        checkNextPath(0); // Start checking paths
     }
 }
+
+
+
+
+
 
 var previousSender = ''; // Global variable to store the previous sender
 var previousPiCode = ''; // Global variable to store the previous piCode
