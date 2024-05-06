@@ -168,8 +168,8 @@ function updateStationLogo(piCode) {
 
 // Function for logo search
 function LogoSearch(piCode, found) {
-    var previousSender = ''; // Global variable to store the previous sender
     var previousPiCode = ''; // Global variable to store the previous piCode
+	var currentSender = ''; // Global variable to store the currentSender
 
     const currentPiCode = piCode; // Get the current piCode
     const tooltipContainer = $('.panel-30');
@@ -190,20 +190,24 @@ function LogoSearch(piCode, found) {
         }
     }
 
-	function checkSender() {
-		const currentSender = $('#data-station-name').text().trim();
-		if (currentSender !== previousSender) {
-			addClickListener(currentSender, found);
-			previousSender = currentSender;
-		}
+let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
 
-		setTimeout(checkSender, 1000);
-	}
+function checkSender() {
+    const currentSender = $('#data-station-name').text().trim();
+    if (currentSender) {
+        addClickListener(currentSender, found);
+    }
 
-	setTimeout(checkSender, 3000);
-
+    // Only set setTimeout for checkSender if it's not already set
+    if (!isCheckSenderSet) {
+        setTimeout(checkSender, 1000);
+        isCheckSenderSet = true; // Set the flag to true after setting the setTimeout
+    }
 }
 
+setTimeout(checkSender, 5000); // Initial setTimeout for checkSender
+
+}
 
 // Function to query the country name using the ITU code
 function getCountryNameByItuCode(ituCode) {
