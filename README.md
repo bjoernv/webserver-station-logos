@@ -10,7 +10,7 @@ Compatible from version 1.2.0
 3. Restart the server
 4. Activate it in the settings
 
-#### For anyone who would like to receive their future updates automatically, please install the Always on Update (AOU) version from [here](https://tef.noobish.eu/logos/scripts/StationLogo_AOU_Version.zip). This script always gets the current code from the logo server.
+#### For anyone who would like to receive their future updates automatically, please install the Always on Update (AOU) version from [here](https://tef.noobish.eu/logos/scripts/StationLogo_AOU_Version.zip). This script always gets the current code from the logo server. To use the latest script, please clear your browser cache!
 
 Important notes: 
 
