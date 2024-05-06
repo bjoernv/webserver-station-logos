@@ -20,8 +20,11 @@ For missing or incorrect logos, please use the integrated Google search function
 
 ## History:
 
-### version v3.1 BETA:
+### version v3.1:
 - Instead of Lyngsat, missing logos are now downloaded from onlineradiobox.com
+- Fixed the disappearance of the PS identifier
+- remove tooltip
+- code optimizations
 
 ### version v3.0:
 - additional logo query via the Lyngsat website
