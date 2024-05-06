@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.1 BETA)					   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.1 BETA)	                   ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 06.05.24 ///
+///                                                          last update: 03.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -22,6 +22,7 @@ var newHtml = '<div style="width: 5%;"></div> <!-- Spacer -->' +
 
 // Insert the new HTML code after the named <div>
 document.getElementById("ps-container").insertAdjacentHTML('afterend', newHtml);
+
 
 //////////////// Inject Logo Code for Mobile Devices ////////////////////////
 
@@ -231,7 +232,7 @@ async function compareAndSelectImage(currentSender, imgSrcElements) {
 async function parsePage(url, currentSender) {
     try {
         // Fetch the HTML content of the page
-        const corsAnywhereUrl = 'https://cors-anywhere.herokuapp.com/';
+        const corsAnywhereUrl = 'http://89.58.28.164:13128/';
         const response = await fetch(`${corsAnywhereUrl}${url}`);
         const html = await response.text();
 
