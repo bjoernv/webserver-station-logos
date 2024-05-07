@@ -6,23 +6,33 @@
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 06.05.24 ///
+///                                                          last update: 07.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
 //////////////// Inject Logo Code for Desktop Devices ////////////////////////
 
-// Define the HTML code as a string
-var newHtml = '<div style="width: 5%;"></div> <!-- Spacer -->' +
+// Define the HTML code as a string for Logo Container
+var LogoContainerHtml = '<div style="width: 5%;"></div> <!-- Spacer -->' +
     '<div class="panel-30 m-0 hide-phone" style="width: 48%" >' +
     '    <div id="logo-container-desktop" style="width: auto; height: 60px; display: flex; justify-content: center; align-items: center; margin: auto;">' +
     '        <img id="station-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC" alt="station-logo-desktop" style="max-width: 140px; padding: 1px 2px; max-height: 100%; margin-top: 30px; display: block; cursor: pointer;">' +
     '    </div>' +
     '</div>';
-
 // Insert the new HTML code after the named <div>
-document.getElementById("ps-container").insertAdjacentHTML('afterend', newHtml);
+document.getElementById("ps-container").insertAdjacentHTML('afterend', LogoContainerHtml);
 
+// The new HTML for the div element with the Play / Stop button
+var buttonHTML = '<div class="panel-10 no-bg h-100 m-0 m-right-20 hide-phone" style="width: 80px;margin-right: 20px !important;">' +
+                     '<button class="playbutton" aria-label="Play / Stop Button"><i class="fa-solid fa-play fa-lg"></i></button>' +
+                  '</div>';
+// Select the original div element
+var originalDiv = document.querySelector('.panel-10');
+// Create a new div element
+var buttonDiv = document.createElement('div');
+buttonDiv.innerHTML = buttonHTML;
+// Replace the original div element with the new HTML
+originalDiv.outerHTML = buttonDiv.outerHTML;
 
 //////////////// Inject Logo Code for Mobile Devices ////////////////////////
 
