@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.11 BETA)                   ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.11)                        ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 07.05.24 ///
+///                                                          last update: 08.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -99,6 +99,9 @@ function CheckPI() {
         tooltipContainer.off('click'); // Klickereignis entfernen
         window.piCode = '';
         window.ituCode = '';
+	window.previousSender = '';
+	window.previousFrequency = '';
+		
     } else {
         updateStationLogo(piCode);
     }
@@ -209,6 +212,8 @@ function checkSender() {
 
     //console.log(`currentStation: ${currentStation}`);
     //console.log(`currentFrequency: ${currentFrequency}`);
+	console.log(`window.previousSender: ${window.previousSender}`);
+	console.log(`window.previousFrequency: ${window.previousFrequency}`);	
 
     if (currentStation && currentFrequency !== window.previousFrequency && window.previousSender !== currentStation) {
         console.log(`loop pass end`);
