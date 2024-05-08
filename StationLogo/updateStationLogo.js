@@ -98,10 +98,7 @@ function CheckPI() {
         logoImage.css('cursor', 'default'); 
         tooltipContainer.off('click'); // Klickereignis entfernen
         window.piCode = '';
-        window.ituCode = '';
-	window.previousSender = '';
-	window.previousFrequency = '';
-		
+        window.ituCode = '';	
     } else {
         updateStationLogo(piCode);
     }
@@ -114,8 +111,7 @@ function updateStationLogo(piCode) {
 
     // Check if PI code or ITU code has changed
     if (piCode !== window.piCode || ituCode !== window.ituCode ) {
-
-        window.piCode = piCode;
+		window.piCode = piCode;
         window.ituCode = ituCode;
         console.log(`piCode: ${piCode}`);
         console.log(`ituCode: ${ituCode}`);
@@ -181,10 +177,8 @@ function updateStationLogo(piCode) {
 
 // Function for logo search
 function LogoSearch(piCode, found) {
-    var previousPiCode = ''; // Global variable to store the previous piCode
-	var currentStation = ''; // Global variable to store the currentStation
-	var currentFrequency = ''; // Global variable to store the currentFrequency
 
+	var currentStation = ''; // Global variable to store the currentStation
     const currentPiCode = piCode; // Get the current piCode
     const tooltipContainer = $('.panel-30');
     tooltipContainer.css('background-color', '').off('click').css('cursor', 'auto');
@@ -204,30 +198,28 @@ function LogoSearch(piCode, found) {
         }
     }
 
-let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
+	let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
 
-function checkSender() {
-    const currentStation = $('#data-station-name').text().trim();
-    const currentFrequency = $('#data-frequency').text().trim();
+	function checkSender() {
+		const currentStation = $('#data-station-name').text().trim();
 
-    //console.log(`currentStation: ${currentStation}`);
-    //console.log(`currentFrequency: ${currentFrequency}`);
-    //console.log(`window.previousSender: ${window.previousSender}`);
-    //console.log(`window.previousFrequency: ${window.previousFrequency}`);	
+		//console.log(`currentStation: ${currentStation}`);
+		//console.log(`window.previousSender: ${window.previousSender}`);
+		//console.log(`window.previouspiCode: ${window.previouspiCode}`);
+		//console.log(`window.previousFrequency: ${window.previousFrequency}`);  
 
-    if (currentStation && currentFrequency !== window.previousFrequency && window.previousSender !== currentStation) {
+    if ((currentStation && window.previousSender !== currentStation && window.previouspiCode !== currentPiCode) || (currentStation && currentStation && window.previousSender === currentStation && window.previouspiCode === currentPiCode)) {
         console.log(`loop pass end`);
-        window.previousFrequency = currentFrequency;
         window.previousSender = currentStation;
+        window.previouspiCode = currentPiCode;
         addClickListener(currentStation, found);
     } else {
         // Wenn die Bedingung nicht erfüllt ist, rufe die Funktion erneut auf
-        setTimeout(checkSender, 5000);
+        setTimeout(checkSender, 500);
     }
 }
 
 checkSender();
-
 
 }
 
