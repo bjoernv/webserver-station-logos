@@ -212,8 +212,8 @@ function checkSender() {
 
     //console.log(`currentStation: ${currentStation}`);
     //console.log(`currentFrequency: ${currentFrequency}`);
-	console.log(`window.previousSender: ${window.previousSender}`);
-	console.log(`window.previousFrequency: ${window.previousFrequency}`);	
+    //console.log(`window.previousSender: ${window.previousSender}`);
+    //console.log(`window.previousFrequency: ${window.previousFrequency}`);	
 
     if (currentStation && currentFrequency !== window.previousFrequency && window.previousSender !== currentStation) {
         console.log(`loop pass end`);
@@ -222,7 +222,7 @@ function checkSender() {
         addClickListener(currentStation, found);
     } else {
         // Wenn die Bedingung nicht erfüllt ist, rufe die Funktion erneut auf
-        setTimeout(checkSender, 500);
+        setTimeout(checkSender, 5000);
     }
 }
 
