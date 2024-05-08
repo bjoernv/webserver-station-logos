@@ -20,6 +20,10 @@ For missing or incorrect logos, please use the integrated Google search function
 
 ## History:
 
+### version v3.11:
+- Play/Stop button back to original size
+- Problem with logo retrieval from onlineradiobox.com fixed
+
 ### version v3.1:
 - Instead of Lyngsat, missing logos are now downloaded from onlineradiobox.com
 - Fixed the disappearance of the PS identifier
