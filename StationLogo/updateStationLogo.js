@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.11)                        ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.12)                        ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 08.05.24 ///
+///                                                          last update: 17.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -108,18 +108,25 @@ function CheckPI() {
 function updateStationLogo(piCode) {
     const ituCode = $('#data-station-itu').text().trim();
     const tooltipContainer = $('.panel-30');
+    let currentStation = $('#data-station-name').text().trim(); // Retrieve current station name
+    currentStation = currentStation.replace(/\s+/g, ''); // Remove all whitespace
+
+    // Log the current station name without whitespace
+    // console.log(`Current Station without whitespace: ${currentStation}`);
 
     // Check if PI code or ITU code has changed
-    if (piCode !== window.piCode || ituCode !== window.ituCode ) {
-		window.piCode = piCode;
+    if (piCode !== window.piCode || ituCode !== window.ituCode) {
+        window.piCode = piCode;
         window.ituCode = ituCode;
         console.log(`piCode: ${piCode}`);
         console.log(`ituCode: ${ituCode}`);
 
         // Define paths for logo images
         const paths = [
-            `${localpath}${piCode}`,
-            `${serverpath}${ituCode}/${piCode}`
+            `${localpath}${piCode}_${currentStation}`, // Local path with piCode and currentStation
+            `${localpath}${piCode}`, // Local path with piCode only
+            `${serverpath}${ituCode}/${piCode}_${currentStation}`, // Server path with piCode and currentStation
+            `${serverpath}${ituCode}/${piCode}` // Server path with piCode only
         ];
 
         const supportedExtensions = ['png', 'svg', 'gif']; // List of supported file extensions
@@ -164,7 +171,6 @@ function updateStationLogo(piCode) {
                     checkNextExtension(extensionIndex + 1); // Try next extension
                 };
                 xhr.send();
-				
             }
 
             checkNextExtension(0); // Start checking extensions
@@ -172,7 +178,6 @@ function updateStationLogo(piCode) {
 
         checkNextPath(0); // Start checking paths
     }
-	
 }
 
 // Function for logo search
