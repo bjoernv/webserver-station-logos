@@ -108,8 +108,7 @@ function CheckPI() {
 function updateStationLogo(piCode) {
     const ituCode = $('#data-station-itu').text().trim();
     const tooltipContainer = $('.panel-30');
-    let currentStation = $('#data-station-name').text().trim(); // Retrieve current station name
-    currentStation = currentStation.replace(/\s+/g, ''); // Remove all whitespace
+    let currentStation = $('#data-station-name').text().trim().replace(/\s+/g, ''); // Retrieve and sanitize current station name
 
     // Log the current station name without whitespace
     // console.log(`Current Station without whitespace: ${currentStation}`);
@@ -124,32 +123,13 @@ function updateStationLogo(piCode) {
         // Generate combinations of case variations
         const cases = [piCode.toLowerCase(), piCode.toUpperCase(), capitalize(piCode), piCode];
         const stationCases = [currentStation.toLowerCase(), currentStation.toUpperCase(), capitalize(currentStation), currentStation];
-        const paths = [];
-
-        // Create paths with all combinations of cases
-        cases.forEach(code => {
-            stationCases.forEach(station => {
-                paths.push(`${localpath}${code}_${station}`);
-                paths.push(`${localpath}${code}`);
-                paths.push(`${serverpath}${ituCode}/${code}_${station}`);
-                paths.push(`${serverpath}${ituCode}/${code}`);
-            });
-        });
-
-        // Additional check for specific case: WildFM
-        if (currentStation.toLowerCase() === "wildfm" || currentStation.toUpperCase().replace(/\s+/g, '') === "WILDFM") {
-            cases.forEach(code => {
-                paths.push(`${localpath}${code}_WildFM`);
-                paths.push(`${serverpath}${ituCode}/${code}_WildFM`);
-            });
-        }
+        const paths = generatePaths(cases, stationCases, ituCode);
 
         const supportedExtensions = ['png', 'svg', 'gif']; // List of supported file extensions
-
         let found = false;
 
         // Function to check each path for logo image
-        function checkNextPath(index) {
+        async function checkNextPath(index) {
             if (found || index >= paths.length) {
                 if (!found) {
                     logoImage.attr('src', emptyServerPath).attr('alt', 'Empty Logo').off('click');
@@ -162,33 +142,33 @@ function updateStationLogo(piCode) {
             const path = paths[index];
 
             // Function to check each extension for logo image
-            function checkNextExtension(extensionIndex) {
+            async function checkNextExtension(extensionIndex) {
                 if (found || extensionIndex >= supportedExtensions.length) {
                     if (!found) {
-                        checkNextPath(index + 1); // If no supported extension found, move to the next path
+                        await checkNextPath(index + 1); // If no supported extension found, move to the next path
                     }
                     return;
                 }
 
-                const xhr = new XMLHttpRequest();
-                xhr.open('HEAD', `${path}.${supportedExtensions[extensionIndex]}`, true);
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
+                try {
+                    const response = await fetch(`${path}.${supportedExtensions[extensionIndex]}`, {
+                        method: 'HEAD'
+                    });
+
+                    if (response.ok) {
                         console.log(`Downloading image from ${path}.${supportedExtensions[extensionIndex]}`);
                         logoImage.attr('src', `${path}.${supportedExtensions[extensionIndex]}`).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
                         found = true;
                         LogoSearch(piCode, found); // Call LogoSearch with found = true if logo is found
-                    } else if (xhr.status === 404) {
-                        checkNextExtension(extensionIndex + 1); // Try next extension if file not found
+                    } else {
+                        await checkNextExtension(extensionIndex + 1); // Try next extension if file not found
                     }
-                };
-                xhr.onerror = function () { // Handling error cases
-                    checkNextExtension(extensionIndex + 1); // Try next extension
-                };
-                xhr.send();
+                } catch (error) {
+                    await checkNextExtension(extensionIndex + 1); // Handle errors and try next extension
+                }
             }
 
-            checkNextExtension(0); // Start checking extensions
+            await checkNextExtension(0); // Start checking extensions
         }
 
         checkNextPath(0); // Start checking paths
@@ -223,17 +203,18 @@ function generatePaths(piCases, stationCases, ituCode) {
 
 // Function for logo search
 function LogoSearch(piCode, found) {
+    if (found) {
+        return; // Do nothing if logo is found
+    }
 
-	var currentStation = ''; // Global variable to store the currentStation
-    const currentPiCode = piCode; // Get the current piCode
     const tooltipContainer = $('.panel-30');
     tooltipContainer.css('background-color', '').off('click').css('cursor', 'auto');
 
     function addClickListener(currentStation, found) {
         const ituCode = $('#data-station-itu').text().trim();
         const country_name = getCountryNameByItuCode(ituCode); // Get the country name for the ITU code
-        const ituCodecurrentStation = currentStation + ' ' + country_name; // Append country name to currentStation
-        const searchQuery = ituCodecurrentStation + ' filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2';
+        const ituCodecurrentStation = `${currentStation} ${country_name}`; // Append country name to currentStation
+        const searchQuery = `${ituCodecurrentStation} filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2`;
         tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
             window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
         });
@@ -244,29 +225,25 @@ function LogoSearch(piCode, found) {
         }
     }
 
-	let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
+    function checkSender() {
+        const currentStation = $('#data-station-name').text().trim();
+        // console.log(`currentStation: ${currentStation}`);
+        // console.log(`window.previousSender: ${window.previousSender}`);
+        // console.log(`window.previouspiCode: ${window.previouspiCode}`);
+        // console.log(`window.previousFrequency: ${window.previousFrequency}`);  
 
-	function checkSender() {
-		const currentStation = $('#data-station-name').text().trim();
-
-		//console.log(`currentStation: ${currentStation}`);
-		//console.log(`window.previousSender: ${window.previousSender}`);
-		//console.log(`window.previouspiCode: ${window.previouspiCode}`);
-		//console.log(`window.previousFrequency: ${window.previousFrequency}`);  
-
-    if ((currentStation && window.previousSender !== currentStation && window.previouspiCode !== currentPiCode) || (currentStation && currentStation && window.previousSender === currentStation && window.previouspiCode === currentPiCode)) {
-        console.log(`loop pass end`);
-        window.previousSender = currentStation;
-        window.previouspiCode = currentPiCode;
-        addClickListener(currentStation, found);
-    } else {
-        // Wenn die Bedingung nicht erfüllt ist, rufe die Funktion erneut auf
-        setTimeout(checkSender, 500);
+        if ((currentStation && window.previousSender !== currentStation && window.previouspiCode !== currentPiCode) || 
+            (currentStation && window.previousSender === currentStation && window.previouspiCode === currentPiCode)) {
+            console.log(`loop pass end`);
+            window.previousSender = currentStation;
+            window.previouspiCode = currentPiCode;
+            addClickListener(currentStation, found);
+        } else {
+            setTimeout(checkSender, 500); // Retry after a delay
+        }
     }
-}
 
-checkSender();
-
+    checkSender();
 }
 
 // Function to query the country name using the ITU code
