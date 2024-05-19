@@ -20,10 +20,6 @@ For missing or incorrect logos, please use the integrated Google search function
 
 ## History:
 
-### version v3.12a:
-- ignore upper and lower case logos with program names
-- ITU codes added
-
 ### version v3.12:
 - additional query for PI code and program name (Local + Server)
 
