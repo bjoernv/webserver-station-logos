@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.12)                        ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.12a)                       ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 17.05.24 ///
+///                                                          last update: 19.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -121,13 +121,28 @@ function updateStationLogo(piCode) {
         console.log(`piCode: ${piCode}`);
         console.log(`ituCode: ${ituCode}`);
 
-        // Define paths for logo images
-        const paths = [
-            `${localpath}${piCode}_${currentStation}`, // Local path with piCode and currentStation
-            `${localpath}${piCode}`, // Local path with piCode only
-            `${serverpath}${ituCode}/${piCode}_${currentStation}`, // Server path with piCode and currentStation
-            `${serverpath}${ituCode}/${piCode}` // Server path with piCode only
-        ];
+        // Generate combinations of case variations
+        const cases = [piCode.toLowerCase(), piCode.toUpperCase(), capitalize(piCode)];
+        const stationCases = [currentStation.toLowerCase(), currentStation.toUpperCase(), capitalize(currentStation)];
+        const paths = [];
+
+        // Create paths with all combinations of cases
+        cases.forEach(code => {
+            stationCases.forEach(station => {
+                paths.push(`${localpath}${code}_${station}`);
+                paths.push(`${localpath}${code}`);
+                paths.push(`${serverpath}${ituCode}/${code}_${station}`);
+                paths.push(`${serverpath}${ituCode}/${code}`);
+            });
+        });
+
+        // Additional check for specific case: WildFM
+        if (currentStation.toLowerCase() === "wildfm" || currentStation.toUpperCase().replace(/\s+/g, '') === "WILDFM") {
+            cases.forEach(code => {
+                paths.push(`${localpath}${code}_WildFM`);
+                paths.push(`${serverpath}${ituCode}/${code}_WildFM`);
+            });
+        }
 
         const supportedExtensions = ['png', 'svg', 'gif']; // List of supported file extensions
 
@@ -178,6 +193,32 @@ function updateStationLogo(piCode) {
 
         checkNextPath(0); // Start checking paths
     }
+}
+
+// Function to capitalize the first letter of a string
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
+// Function to capitalize the first letter of each word in a string
+function capitalize(string) {
+    return string.toLowerCase().replace(/\b\w/g, function (char) {
+        return char.toUpperCase();
+    });
+}
+
+// Function to generate all possible paths
+function generatePaths(piCases, stationCases, ituCode) {
+    const paths = [];
+    piCases.forEach(pi => {
+        stationCases.forEach(station => {
+            paths.push(`${localpath}${pi}_${station}`);
+            paths.push(`${localpath}${pi}`);
+            paths.push(`${serverpath}${ituCode}/${pi}_${station}`);
+            paths.push(`${serverpath}${ituCode}/${pi}`);
+        });
+    });
+    return paths;
 }
 
 // Function for logo search
@@ -311,7 +352,7 @@ async function OnlineradioboxSearch(currentStation, ituCode) {
 
 // The list of countries and their ITU codes
 const countryList = [
-   { itu_code: 'AFG', country_code: 'af', country: 'Afghanistan' },
+    { itu_code: 'AFG', country_code: 'af', country: 'Afghanistan' },
     { itu_code: 'ALB', country_code: 'al', country: 'Albania' },
     { itu_code: 'ALG', country_code: 'dz', country: 'Algeria' },
     { itu_code: 'AND', country_code: 'ad', country: 'Andorra' },
@@ -368,7 +409,7 @@ const countryList = [
     { itu_code: 'FIN', country_code: 'fi', country: 'Finland' },
     { itu_code: 'FJI', country_code: 'fj', country: 'Fiji' },
     { itu_code: 'FSM', country_code: 'fm', country: 'Micronesia' },
-    { itu_code: 'G', country_code: 'uk', country: 'United Kingdom' },
+    { itu_code: 'G', country_code: 'gb', country: 'United Kingdom' },
     { itu_code: 'GAB', country_code: 'ga', country: 'Gabon' },
     { itu_code: 'GEO', country_code: 'ge', country: 'Georgia' },
     { itu_code: 'GHA', country_code: 'gh', country: 'Ghana' },
@@ -440,8 +481,9 @@ const countryList = [
     { itu_code: 'PER', country_code: 'pe', country: 'Peru' },
     { itu_code: 'PHL', country_code: 'ph', country: 'Philippines' },
     { itu_code: 'POL', country_code: 'pl', country: 'Poland' },
-    { itu_code: 'PRT', country_code: 'pt', country: 'Portugal' },
+    { itu_code: 'POR', country_code: 'pt', country: 'Portugal' },
     { itu_code: 'QAT', country_code: 'qa', country: 'Qatar' },
+	{ itu_code: 'RKS', country_code: 'xk', country: 'Kosovo' },
     { itu_code: 'ROU', country_code: 'ro', country: 'Romania' },
     { itu_code: 'RUS', country_code: 'ru', country: 'Russia' },
     { itu_code: 'RWA', country_code: 'rw', country: 'Rwanda' },
@@ -469,7 +511,7 @@ const countryList = [
     { itu_code: 'SUR', country_code: 'sr', country: 'Suriname' },
     { itu_code: 'SWZ', country_code: 'sz', country: 'Swaziland' },
     { itu_code: 'SWE', country_code: 'se', country: 'Sweden' },
-    { itu_code: 'SWZ', country_code: 'ch', country: 'Switzerland' },
+    { itu_code: 'SUI', country_code: 'ch', country: 'Switzerland' },
     { itu_code: 'SYR', country_code: 'sy', country: 'Syria' },
     { itu_code: 'TWN', country_code: 'tw', country: 'Taiwan' },
     { itu_code: 'TJK', country_code: 'tj', country: 'Tajikistan' },
