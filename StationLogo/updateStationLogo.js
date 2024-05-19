@@ -1,356 +1,291 @@
-//////////////////////////////////////////////////////////////////////////////////////
-///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.12a)                       ///
-///                                                                                /// 
-///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
-///                                                                                ///
-///  New Logo Files (png/svg) and Feedback are welcome!                            ///
-///  73! Highpoint                                                                 ///
-///                                                          last update: 19.05.24 ///
-//////////////////////////////////////////////////////////////////////////////////////
-
-
-//////////////// Inject Logo Code for Desktop Devices ////////////////////////
-
-// Define the HTML code as a string for Logo Container
-var LogoContainerHtml = '<div style="width: 5%;"></div> <!-- Spacer -->' +
-    '<div class="panel-30 m-0 hide-phone" style="width: 48%" >' +
-    '    <div id="logo-container-desktop" style="width: auto; height: 60px; display: flex; justify-content: center; align-items: center; margin: auto;">' +
-    '        <img id="station-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC" alt="station-logo-desktop" style="max-width: 140px; padding: 1px 2px; max-height: 100%; margin-top: 30px; display: block; cursor: pointer;">' +
-    '    </div>' +
-    '</div>';
-// Insert the new HTML code after the named <div>
-document.getElementById("ps-container").insertAdjacentHTML('afterend', LogoContainerHtml);
-
-// The new HTML for the div element with the Play / Stop button
-var buttonHTML = '<div class="panel-10 no-bg h-100 m-0 m-right-20 hide-phone" style="width: 80px;margin-right: 20px !important;">' +
-                     '<button class="playbutton" aria-label="Play / Stop Button"><i class="fa-solid fa-play fa-lg"></i></button>' +
-                  '</div>';
-// Select the original div element
-var originalDiv = document.querySelector('.panel-10');
-// Create a new div element
-var buttonDiv = document.createElement('div');
-buttonDiv.innerHTML = buttonHTML;
-// Replace the original div element with the new HTML
-originalDiv.outerHTML = buttonDiv.outerHTML;
-
-//////////////// Inject Logo Code for Mobile Devices ////////////////////////
-
-// Select the existing <div> element with the ID "flags-container-phone"
-var flagsContainerPhone = document.getElementById('flags-container-phone');
-
-// Create the new HTML for the replacement
-var MobileHTML = `
-    <div id="flags-container-phone" class="panel-33">
-        <h2 class="show-phone">	
-            <div id="logo-container-phone" style="width: auto; height: 70px; display: flex; justify-content: center; align-items: center; margin: auto;">                 
-                <img id="station-logo-phone" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC" alt="station-logo-phone" style="max-width: 160px; padding: 1px 2px; max-height: 100%; margin-top: 0px; display: block;">	
-            </div>
-            <br>
-            <div class="data-pty text-color-default"></div>
-        </h2>
-		<h3 style="margin-top:0;margin-bottom:0;" class="color-4 flex-center">
-                <span class="data-tp">TP</span>
-                <span style="margin-left: 15px;" class="data-ta">TA</span>
-                <div style="display:inline-block">
-                    <span style="margin-left: 20px;display: block;margin-top: 2px;" class="data-flag"></span>
-                </div>
-                <span class="pointer stereo-container" style="position: relative;">
-                    <span style="margin-left: 20px;" class="data-st">ST</span>
-                    <span class="overlay tooltip" data-tooltip="Stereo / Mono toggle. <br><strong>Click to toggle."></span>
-                </span>
-                <span style="margin-left: 15px;" class="data-ms">MS</span>
-		</h3>
-    </div>
-`;
-
-// Replace the HTML content of the <div> element with the new HTML code
-flagsContainerPhone.innerHTML = MobileHTML;
-
-// Display the Logo //
-
-const serverpath = 'https://tef.noobish.eu/logos/';
-const localpath = '/logos/';
-const defaultServerPath = serverpath + 'default-logo.png';
-const emptyServerPath = serverpath + 'empty-logo.png';
-
-// Determine the logo image element based on device type
-var logoImage;
-if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-    logoImage = $('#station-logo-phone');
-} else {
-    logoImage = $('#station-logo');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <title>Logo Browser</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+/* Stile für das Layout der Vorschau */
+body {
+  background-color: #0b3d91; /* Dunkelblauer Hintergrund */
+  color: white; /* Weiße Schriftfarbe für den Kontrast */
+  font-family: Arial, sans-serif;
+  line-height: 1.5; /* Größerer Zeilenabstand */
+  margin: 0; /* Rand entfernen */
+  padding: 0; /* Innenabstand entfernen */
 }
 
-// Set interval to check PI code
-setInterval(CheckPI, 200);
-
-// Function to check PI code
-function CheckPI() {
-    const piCodeContainer = $('#data-pi');
-    const piCode = piCodeContainer.text().trim().replace(/[?]{1,2}/g, '').toUpperCase();
-    const tooltipContainer = $('.panel-30');
-
-    // Check if PI code is empty or contains '?' characters
-    if (piCode === '' || piCode.includes('?')) {
-        tooltipContainer.css('background-color', '');
-        logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo');
-        logoImage.css('cursor', 'default'); 
-        tooltipContainer.off('click'); // Klickereignis entfernen
-        window.piCode = '';
-        window.ituCode = '';	
-    } else {
-        updateStationLogo(piCode);
-    }
+/* Stil für das fileCount Element */
+#fileCount {
+  position: absolute;
+  background-color: transparent;
+  color: white;
+  padding: 5px;
+  border: 0px solid white;
+  z-index: 9999;
 }
 
-// Function to update station logo
-function updateStationLogo(piCode) {
-    const ituCode = $('#data-station-itu').text().trim();
-    const tooltipContainer = $('.panel-30');
-    let currentStation = $('#data-station-name').text().trim(); // Retrieve current station name
-    currentStation = currentStation.replace(/\s+/g, ''); // Remove all whitespace
-
-    // Log the current station name without whitespace
-    // console.log(`Current Station without whitespace: ${currentStation}`);
-
-    // Check if PI code or ITU code has changed
-    if (piCode !== window.piCode || ituCode !== window.ituCode) {
-        window.piCode = piCode;
-        window.ituCode = ituCode;
-        console.log(`piCode: ${piCode}`);
-        console.log(`ituCode: ${ituCode}`);
-
-        // Generate combinations of case variations
-        const cases = [piCode.toLowerCase(), piCode.toUpperCase(), capitalize(piCode)];
-        const stationCases = [currentStation.toLowerCase(), currentStation.toUpperCase(), capitalize(currentStation)];
-        const paths = [];
-
-        // Create paths with all combinations of cases
-        cases.forEach(code => {
-            stationCases.forEach(station => {
-                paths.push(`${localpath}${code}_${station}`);
-                paths.push(`${localpath}${code}`);
-                paths.push(`${serverpath}${ituCode}/${code}_${station}`);
-                paths.push(`${serverpath}${ituCode}/${code}`);
-            });
-        });
-
-        // Additional check for specific case: WildFM
-        if (currentStation.toLowerCase() === "wildfm" || currentStation.toUpperCase().replace(/\s+/g, '') === "WILDFM") {
-            cases.forEach(code => {
-                paths.push(`${localpath}${code}_WildFM`);
-                paths.push(`${serverpath}${ituCode}/${code}_WildFM`);
-            });
-        }
-
-        const supportedExtensions = ['png', 'svg', 'gif']; // List of supported file extensions
-
-        let found = false;
-
-        // Function to check each path for logo image
-        function checkNextPath(index) {
-            if (found || index >= paths.length) {
-                if (!found) {
-                    logoImage.attr('src', emptyServerPath).attr('alt', 'Empty Logo').off('click');
-                    logoImage.css('cursor', 'default');
-                    LogoSearch(piCode, found); // Call LogoSearch with found = false if no logo is found
-                }
-                return;
-            }
-
-            const path = paths[index];
-
-            // Function to check each extension for logo image
-            function checkNextExtension(extensionIndex) {
-                if (found || extensionIndex >= supportedExtensions.length) {
-                    if (!found) {
-                        checkNextPath(index + 1); // If no supported extension found, move to the next path
-                    }
-                    return;
-                }
-
-                const xhr = new XMLHttpRequest();
-                xhr.open('HEAD', `${path}.${supportedExtensions[extensionIndex]}`, true);
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        console.log(`Downloading image from ${path}.${supportedExtensions[extensionIndex]}`);
-                        logoImage.attr('src', `${path}.${supportedExtensions[extensionIndex]}`).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
-                        found = true;
-                        LogoSearch(piCode, found); // Call LogoSearch with found = true if logo is found
-                    } else if (xhr.status === 404) {
-                        checkNextExtension(extensionIndex + 1); // Try next extension if file not found
-                    }
-                };
-                xhr.onerror = function () { // Handling error cases
-                    checkNextExtension(extensionIndex + 1); // Try next extension
-                };
-                xhr.send();
-            }
-
-            checkNextExtension(0); // Start checking extensions
-        }
-
-        checkNextPath(0); // Start checking paths
-    }
+/* Media Query für Bildschirme mit einer Breite von mindestens 1350px */
+@media only screen and (min-width: 1350px) {
+  #fileCount {
+    top: 25px;
+    right: 200px;
+  }
 }
 
-// Function to capitalize the first letter of a string
-function capitalize(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+/* Media Query für Bildschirme mit einer Breite von höchstens 1350px */
+@media only screen and (max-width: 1350px) {
+  #fileCount {
+    position: absolute; /* Ändere die Positionierung auf relativ */
+    top: auto; /* Setze die Positionseigenschaften zurück */
+    right: auto;
+    margin-top: 20px; /* Füge einen oberen Abstand hinzu */
+    margin-left: 25px; /* Füge einen linken Abstand hinzu */
+  }
 }
 
-// Function to capitalize the first letter of each word in a string
-function capitalize(string) {
-    return string.toLowerCase().replace(/\b\w/g, function (char) {
-        return char.toUpperCase();
-    });
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px; /* Innenabstand hinzufügen */
+  box-sizing: border-box; /* Box-Modell-Korrektur */
+}
+.back-button {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+  margin-left: auto; /* Zurück-Button nach rechts schieben */
+  margin-right: 50px; /* Weiter nach links verschieben */
+  z-index: 2;
+}
+.back-button:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+.folders-container {
+  display: flex; /* Flexbox verwenden */
+  flex-wrap: wrap; /* Automatisches Umbruchverhalten */
+  justify-content: flex-start; /* Links ausrichten */
+  padding: 10px 20px; /* Innenabstand hinzufügen */
+  box-sizing: border-box; /* Box-Modell-Korrektur */
+  margin-top: 5px; /* Abstand nach oben */
+}
+.folder-container {
+  position: relative;
+  width: 180px;
+  height: 90px; /* Höhe angepasst für mehr Platz unter dem Ordnernamen */
+  margin: -10px 20px 60px 0px; /* Anpassung der linken Margin */
+  border-radius: 30px;
+  background-color: #130468;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer; /* Cursor beim Überfahren in einen Zeiger ändern */
 }
 
-// Function to generate all possible paths
-function generatePaths(piCases, stationCases, ituCode) {
-    const paths = [];
-    piCases.forEach(pi => {
-        stationCases.forEach(station => {
-            paths.push(`${localpath}${pi}_${station}`);
-            paths.push(`${localpath}${pi}`);
-            paths.push(`${serverpath}${ituCode}/${pi}_${station}`);
-            paths.push(`${serverpath}${ituCode}/${pi}`);
-        });
-    });
-    return paths;
+.folder-container:hover { /* Hintergrundfarbe beim Überfahren ändern */
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-// Function for logo search
-function LogoSearch(piCode, found) {
-
-	var currentStation = ''; // Global variable to store the currentStation
-    const currentPiCode = piCode; // Get the current piCode
-    const tooltipContainer = $('.panel-30');
-    tooltipContainer.css('background-color', '').off('click').css('cursor', 'auto');
-
-    function addClickListener(currentStation, found) {
-        const ituCode = $('#data-station-itu').text().trim();
-        const country_name = getCountryNameByItuCode(ituCode); // Get the country name for the ITU code
-        const ituCodecurrentStation = currentStation + ' ' + country_name; // Append country name to currentStation
-        const searchQuery = ituCodecurrentStation + ' filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2';
-        tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
-            window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
-        });
-        logoImage.css('cursor', 'pointer'); 
-        // console.log(`Logo found: ${found}`);
-        if (!found && logoImage.attr('src') === emptyServerPath) {
-            OnlineradioboxSearch(currentStation, ituCode);
-        }
-    }
-
-	let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
-
-	function checkSender() {
-		const currentStation = $('#data-station-name').text().trim();
-
-		//console.log(`currentStation: ${currentStation}`);
-		//console.log(`window.previousSender: ${window.previousSender}`);
-		//console.log(`window.previouspiCode: ${window.previouspiCode}`);
-		//console.log(`window.previousFrequency: ${window.previousFrequency}`);  
-
-    if ((currentStation && window.previousSender !== currentStation && window.previouspiCode !== currentPiCode) || (currentStation && currentStation && window.previousSender === currentStation && window.previouspiCode === currentPiCode)) {
-        console.log(`loop pass end`);
-        window.previousSender = currentStation;
-        window.previouspiCode = currentPiCode;
-        addClickListener(currentStation, found);
-    } else {
-        // Wenn die Bedingung nicht erfüllt ist, rufe die Funktion erneut auf
-        setTimeout(checkSender, 500);
-    }
+.folder-container .folder { /* Ordnerinhalt */
+  pointer-events: none; /* Klickereignisse für den Ordnerinhalt deaktivieren */
 }
 
-checkSender();
-
+.folder-container::before,
+.folder-container::after {
+  content: ''; /* Pseudoelemente für den Rahmen */
+  position: absolute;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  border-radius: 30px; /* Abgerundete Ecken */
+  background-color: transparent; /* Transparenter Hintergrund */
+  z-index: -1; /* Hinter das Inhaltscontainer setzen */
 }
 
-// Function to query the country name using the ITU code
-function getCountryNameByItuCode(ituCode) {
-  const country = countryList.find(item => item.itu_code === ituCode.toUpperCase());
-  return country ? country.country : "Country not found";
+.folder-container:hover::before,
+.folder-container:hover::after { /* Rahmen beim Überfahren anzeigen */
+  background-color: rgba(255, 255, 255, 0.1); /* Rahmenfarbe */
 }
 
-// Function to compare the current sender with the image titles and select the most similar image
-async function compareAndSelectImage(currentStation, imgSrcElements) {
-    let minDistance = Infinity;
-    let selectedImgSrc = null;
-
-    // Loop through all found image titles
-    imgSrcElements.forEach(imgSrcElement => {
-        // Extract the title of the image
-        const title = imgSrcElement.getAttribute('title');
-
-        // Calculate the Levenshtein distance between the current sender and the image title
-        const distance = Math.abs(currentStation.toLowerCase().localeCompare(title.toLowerCase()));
-
-        // Update the selected image URL if the distance is smaller than the current minimum distance
-        if (distance < minDistance) {
-            minDistance = distance;
-            selectedImgSrc = imgSrcElement.getAttribute('src');
-        }
-    });
-
-    // Add "https://" to the beginning if not present
-    if (selectedImgSrc && !selectedImgSrc.startsWith('https://')) {
-        selectedImgSrc = 'https:' + selectedImgSrc;
-    }
-
-    return selectedImgSrc;
+.folder-container::before { /* Rahmen oben */
+  top: -1px;
+  left: -1px;
 }
 
-// Function to fetch and process the page via the proxy
-async function parsePage(url, currentStation) {
-    try {
-        // Fetch the HTML content of the page
-        const corsAnywhereUrl = 'http://89.58.28.164:13128/';
-        const response = await fetch(`${corsAnywhereUrl}${url}`);
-        const html = await response.text();
-
-        // Parse the HTML content and extract the necessary information
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        // Dynamic search for images with titles
-        const imgSrcElements = doc.querySelectorAll('img[class="station__title__logo"]');
-
-        // Compare the current sender with the image titles and select the most similar image
-        const selectedImgSrc = await compareAndSelectImage(currentStation, imgSrcElements);
-        
-        // Further processing steps here, such as assigning the link to an image element or other actions
-        console.log('The selected image source is:', selectedImgSrc);
-		logoImage.attr('src', selectedImgSrc).attr('alt', 'Onlineradiobox Logo');
-		logoImage.css('cursor', 'pointer'); // Mauszeiger auf Klickcursor setzen
-    } catch (error) {
-        // Handle errors fetching and processing the page
-        console.error('Error fetching and processing the page:', error);
-		logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo').off('click');
-		logoImage.css('cursor', 'default'); 
-    }
+.folder-container::after { /* Rahmen links */
+  top: -1px;
+  left: -1px;
 }
 
-// Definition of the OnlineradioboxSearch function in a separate module
-async function OnlineradioboxSearch(currentStation, ituCode) {
+.folder p {
+  color: white; /* Weiße Schriftfarbe für den Ordnername */
+  font-size: 22px; /* Pixelgröße des Ordnername */
+  margin-top: -10px; /* Innenabstand entfernen */
+}
 
-        // Replace spaces in currentStation with %20
-        currentStation = currentStation.replace(/\s/g, '%20');
-        
-        // Find the selected country information based on the ITU code
-        const selectedCountry = countryList.find(item => item.itu_code === ituCode);
-        const selectedCountryCode = selectedCountry ? selectedCountry.country_code : null;
+.flag-image {
+  margin-top: -20px; /* Abstand zum Ordnernamen */
+  width: auto; /* Breite automatisch anpassen */
+  height: 30px; /* Höhe der Flagge */
+}
 
-        // The URL of the search page
-        const searchUrl = `https://onlineradiobox.com/search?c=${selectedCountryCode}&cs=${selectedCountryCode}&q=${currentStation}`;
-        console.log('The Search-URL is:', searchUrl);
+.logo-browser {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* Logos linksbündig ausrichten */
+  align-items: flex-start; /* Logos oben ausrichten */
+  margin-top: -40px; /* Kein zusätzlicher Abstand nach oben */
+  margin-left: -30px; /* Negative Margin, um den Überschuss auszugleichen */
+  padding: 10px 20px; /* Innenabstand hinzufügen */
+  box-sizing: border-box; /* Box-Modell-Korrektur */
+}
 
-        // Call the function to fetch and process the search page HTML content via the proxy
-        await parsePage(searchUrl, currentStation); // Pass currentStation to parsePage
-    }
+.logo-container {
+  position: relative;
+  width: 180px;
+  height: 90px;
+  margin: 30px 20px 60px 20px; /* Reduzierte Seitenabstände */
+  border-radius: 30px;
+  background-color: #130468;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
-// The list of countries and their ITU codes
+.logo-container:hover {
+  background-color: rgba(0, 0, 0, 0.3); /* Neue Hintergrundfarbe beim Überfahren */
+}
+
+.logo-container.hovered {
+  background-color: green !important; /* Hier den gewünschten Hintergrundfarbwert einfügen */
+}
+
+.logo-container img {
+  margin-top: 80px;
+  width: auto;
+  height: 60px;
+  min-height: 60px; /* Mindesthöhe des Containers */
+  max-height: 100%;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+.logo-info {
+  position: absolute;
+  bottom: 5px;
+  left: 0; /* Positioniert die Metadaten am linken Rand */
+  width: 100%; /* Füllt den gesamten Container */
+  color: white;
+  text-align: center; /* Zentriert den Text horizontal */
+}
+
+.logo-info p {
+  margin: 5px 0; /* Innenabstand für einzelne Absätze */
+}
+
+.logo-container p {
+  margin: 1px; /* Abstand zum Bild */
+  font-size: 12px;
+}
+.filename {
+  font-size: 12px; /* Dateiname größer anzeigen */
+}
+.image-size-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.file-size {
+  margin-left: auto;
+}
+
+/* Media Query für kleine Bildschirme */
+@media only screen and (min-width: 1350px) {
+/* Schaltflächen für Farbauswahl */
+.color-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: -10px; /* Anpassung des Abstands nach oben */
+  margin-left: -50px;
+  position: absolute; /* Absolute Positionierung */
+  width: 100%; /* Breite auf 100% setzen */
+  z-index: 1; /* Über der Logo-Browser-Div positionieren */
+}
+  }
+
+.color-button {
+  width: 80px;
+  height: 30px;
+  margin: 0 5px;
+  border: 1px solid white; /* Schwarzer Rand */
+  border-radius: 0%;
+  cursor: pointer;
+  outline: none;
+  color: white; /* Schriftfarbe auf Weiß setzen */
+}
+
+/* Media Query für kleine Bildschirme */
+@media only screen and (max-width: 1350px) {
+  .container {
+    flex-direction: column; /* Spaltenlayout für kleine Bildschirme */
+    align-items: flex-start; /* Elemente links ausrichten */
+  }
+
+  .color-buttons {
+    position: static; /* Position auf statisch ändern */
+    margin-top: 10px; /* Abstand nach oben hinzufügen */
+  }
+
+  .back-button {
+    margin: 10px 0; /* Abstand oben und unten hinzufügen */
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Logo Browser</h1> <!-- Hier wird der Ordnername dynamisch eingefügt -->
+	<!-- Farbauswahl-Buttons -->
+<div class="color-buttons">
+  <button class="color-button" data-color="#1E2928" style="background-color: #1E2928;">Cappuccino</button>
+  <button class="color-button" data-color="#1A1E11" style="background-color: #1A1E11;">Nature</button>
+  <button class="color-button" data-color="#112726" style="background-color: #112726;">Ocean</button>
+  <button class="color-button" data-color="#221909" style="background-color: #221909;">Terminal</button>
+  <button class="color-button" data-color="#2C0D23" style="background-color: #2C0D23;">Nightlife</button>
+  <button class="color-button" data-color="#131025" style="background-color: #131025;">Purple</button>
+  <button class="color-button" data-color="#0A0A0A" style="background-color: #0A0A0A;">Amoled</button>
+</div>
+    <a href="#" class="back-button" id="backButton" style="display: none;">Back</a>
+  </div>
+
+  <div class="folders-container" id="folderStructure">
+  </div>
+
+  <div class="logo-browser" id="logoBrowser" style="display: none;">
+
+    <!-- Hier werden die Vorschauen der Logos automatisch generiert -->
+  </div>
+  
+  <div id="flagResult"></div> <!-- Hier werden die Flaggen angezeigt -->
+  <div id="fileCount"></div>
+  
+   <!-- JavaScript-Code -->
+ <script>
+// Globale Variable, um den ausgewählten Farbwert zu speichern
+let selectedColor = '';
+
+// Die Liste der Länder und ihrer ITU-Codes
 const countryList = [
     { itu_code: 'AFG', country_code: 'af', country: 'Afghanistan' },
     { itu_code: 'ALB', country_code: 'al', country: 'Albania' },
@@ -458,6 +393,7 @@ const countryList = [
     { itu_code: 'MRT', country_code: 'mr', country: 'Mauritania' },
     { itu_code: 'MUS', country_code: 'mu', country: 'Mauritius' },
     { itu_code: 'MEX', country_code: 'mx', country: 'Mexico' },
+    { itu_code: 'MDA', country_code: 'md', country: 'Moldova' },
     { itu_code: 'MCO', country_code: 'mc', country: 'Monaco' },
     { itu_code: 'MNG', country_code: 'mn', country: 'Mongolia' },
     { itu_code: 'MNE', country_code: 'me', country: 'Montenegro' },
@@ -471,6 +407,7 @@ const countryList = [
     { itu_code: 'NIC', country_code: 'ni', country: 'Nicaragua' },
     { itu_code: 'NGR', country_code: 'ne', country: 'Niger' },
     { itu_code: 'NGA', country_code: 'ng', country: 'Nigeria' },
+    { itu_code: 'MKD', country_code: 'mk', country: 'North Macedonia' },
     { itu_code: 'NOR', country_code: 'no', country: 'Norway' },
     { itu_code: 'OMN', country_code: 'om', country: 'Oman' },
     { itu_code: 'PAK', country_code: 'pk', country: 'Pakistan' },
@@ -538,4 +475,298 @@ const countryList = [
     { itu_code: 'YEM', country_code: 'ye', country: 'Yemen' },
     { itu_code: 'ZMB', country_code: 'zm', country: 'Zambia' },
     { itu_code: 'ZWE', country_code: 'zw', country: 'Zimbabwe' }
+    // Füge weitere Länder hier hinzu...
 ];
+
+// Funktion zum Ermitteln der Flagge anhand des Ordner-Namens
+function getFlagByFolderName(folderName) {
+    const countryData = countryList.find(country => country.itu_code === folderName.toUpperCase());
+    
+    if (countryData) {
+        const flagUrl = `https://flagcdn.com/w80/${countryData.country_code}.png`;
+        const flagImg = document.createElement('img');
+        flagImg.src = flagUrl;
+        flagImg.alt = `${countryData.country} Flagge`;
+        flagImg.classList.add('flag-image'); // Klasse hinzufügen
+        return flagImg;
+    } else {
+        console.error('Land nicht gefunden für Ordner:', folderName);
+        return null;
+    }
+}
+
+
+async function showImagesInFolder(folderPath, folderName) {
+  try {
+    const response = await fetch(folderPath, { cache: 'no-cache' });
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const imageLinks = doc.querySelectorAll('a[href$=".svg"], a[href$=".png"]');
+
+    const logoBrowser = document.getElementById('logoBrowser');
+    logoBrowser.style.display = 'flex'; // Browser anzeigen
+    logoBrowser.innerHTML = ''; // Browser leeren
+
+    for (const link of imageLinks) {
+      const imgContainer = document.createElement('div');
+      imgContainer.classList.add('logo-container'); // Klasse hinzufügen
+      imgContainer.style.backgroundColor = selectedColor; // Hintergrundfarbe setzen
+
+      const img = document.createElement('img');
+      const filename = document.createElement('p');
+      const imageSizeContainer = document.createElement('div');
+      const imageSize = document.createElement('p');
+      const fileSize = document.createElement('p');
+      const filenameText = document.createTextNode(link.textContent.trim());
+
+      // Dateiname hinzufügen
+      filename.appendChild(filenameText);
+      filename.classList.add('filename'); // Klasse für Dateiname hinzufügen
+
+      // Eventlistener hinzufügen, um die Pixelgröße nach dem Laden des Bildes anzuzeigen
+      img.addEventListener('load', async function() {
+        imageSize.textContent = `${img.naturalWidth} x ${img.naturalHeight}`; // Pixelgröße anzeigen
+
+        // Dateigröße berechnen
+        const blob = await fetch(img.src, { cache: 'no-cache' }).then(r => r.blob());
+        const fileSizeKB = Math.ceil(blob.size / 1024);
+        fileSize.textContent = `${fileSizeKB} KB`;
+
+        imageSizeContainer.appendChild(imageSize);
+        imageSizeContainer.appendChild(fileSize);
+      });
+
+      img.src = folderPath + link.textContent.trim();
+      img.alt = link.textContent.trim();
+
+      imgContainer.appendChild(img); // Bild dem Container hinzufügen
+      imgContainer.appendChild(document.createElement('br')); // Leerzeile einfügen
+      imgContainer.appendChild(filename); // Dateiname dem Container hinzufügen
+      imgContainer.appendChild(imageSizeContainer); // Größe und Dateigröße dem Container hinzufügen
+
+      logoBrowser.appendChild(imgContainer);
+    }
+
+    // Titel aktualisieren, um die Flagge anzuzeigen
+    const flagImg = getFlagByFolderName(folderName);
+    if (flagImg) {
+      const flagContainer = document.createElement('div'); // Container für die Flagge erstellen
+      flagContainer.classList.add('flag-container');
+      flagContainer.style.position = 'absolute';
+      flagContainer.style.top = '55px';
+      flagContainer.style.left = '250px';
+      flagContainer.style.width = '50px'; // Feste Breite für den Container festlegen
+      flagContainer.style.zIndex = '1000'; // Sicherstellen, dass die Flagge oben bleibt
+
+      flagImg.style.width = '100%'; // Flagge an Containerbreite anpassen
+      flagContainer.appendChild(flagImg); // Flagge dem Container hinzufügen
+
+      document.body.appendChild(flagContainer); // Flaggencontainer zum body hinzufügen
+
+      // Setze den Titeltext im h1-Element
+      const h1 = document.querySelector('h1');
+      h1.textContent = 'Logo Browser';
+    } else {
+      document.querySelector('h1').textContent = 'Logo Browser'; // Wenn keine Flagge gefunden wurde, nur "Logo Browser" anzeigen
+    }
+  } catch (error) {
+    console.error('Fehler beim Abrufen und Anzeigen der Bilder:', error);
+  }
+}
+
+
+
+
+
+
+// Funktion zum Abrufen der Ordnerstruktur und Erstellen der Baumansicht
+async function fetchFolderStructure() {
+  try {
+    const response = await fetch('https://tef.noobish.eu/logos/', { cache: 'no-cache' });
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const folders = doc.querySelectorAll('a[href$="/"]');
+
+    const foldersArray = Array.from(folders)
+      .map(folder => ({
+        name: folder.textContent.trim().replace('/', ''),
+        path: folder.getAttribute('href')
+      }))
+      .filter(folder => folder.name !== 'scripts' && folder.name !== 'images' && folder.name !== 'Parent Directory');
+
+    const folderStructure = document.getElementById('folderStructure');
+    folderStructure.innerHTML = ''; // Vor dem Erstellen der Ordnerstruktur den Inhalt leeren
+
+    foldersArray.forEach(folder => {
+      const folderContainer = document.createElement('div');
+      folderContainer.classList.add('folder-container');
+      folderContainer.style.backgroundColor = selectedColor; // Hintergrundfarbe setzen
+      folderContainer.addEventListener('click', async () => {
+        const backButton = document.getElementById('backButton');
+        backButton.style.display = 'block'; // Zurück-Button anzeigen
+        folderStructure.style.display = 'none'; // Ordnerstruktur ausblenden
+
+        await showImagesInFolder(`https://tef.noobish.eu/logos/${folder.path}`, folder.name);
+      });
+
+      const folderElement = document.createElement('div');
+      folderElement.classList.add('folder');
+      folderElement.innerHTML = `<p>${folder.name}</p>`;
+
+      folderContainer.appendChild(folderElement);
+      folderStructure.appendChild(folderContainer);
+
+      // Hintergrundfarbe für Folder-Container beim Hover aktualisieren
+      folderContainer.addEventListener('mouseenter', () => {
+        folderContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+      });
+      folderContainer.addEventListener('mouseleave', () => {
+        folderContainer.style.backgroundColor = selectedColor;
+      });
+	  // Anzeige der Flagge entsprechend dem ITU-Code des Ordners
+      const flagImg = getFlagByFolderName(folder.name);
+      if (flagImg) {
+          folderContainer.appendChild(flagImg);
+      }
+    });
+  } catch (error) {
+    console.error('Fehler beim Abrufen und Anzeigen der Ordnerstruktur:', error);
+  }
+}
+
+// Die Funktion zum Abrufen und Anzeigen der Ordnerstruktur aufrufen, wenn die Seite geladen ist
+window.onload = fetchFolderStructure;
+
+// Eventlistener für die Farbauswahl hinzufügen
+document.querySelectorAll('.color-button').forEach(button => {
+  button.addEventListener('click', function() {
+    selectedColor = this.dataset.color; // Ausgewählte Farbe festlegen
+    // Farbe für alle Logo-Container festlegen
+    document.querySelectorAll('.logo-container').forEach(container => {
+      container.style.backgroundColor = selectedColor;
+    });
+    // Farbe für alle Folder-Container festlegen
+    document.querySelectorAll('.folder-container').forEach(container => {
+      container.style.backgroundColor = selectedColor;
+    });
+    // Hintergrundfarbe für die gesamte Webseite festlegen
+    document.body.style.backgroundColor = selectedColor;
+    // Hintergrundfarben für die Farbauswahl-Buttons festlegen
+    document.querySelectorAll('.color-button').forEach(btn => {
+      btn.style.backgroundColor = btn.dataset.color;
+    });
+  });
+});
+
+// Eventlistener für den Zurück-Button hinzufügen
+document.getElementById('backButton').addEventListener('click', () => {
+  document.getElementById('backButton').style.display = 'none'; // Zurück-Button ausblenden
+  document.getElementById('folderStructure').style.display = 'flex'; // Ordnerstruktur wieder anzeigen
+  document.getElementById('logoBrowser').style.display = 'none'; // Browser ausblenden
+  fetchFolderStructure(); // Ordnerstruktur neu laden
+
+  // Titel aktualisieren, um den Ordnername auszublenden
+  document.querySelector('h1').textContent = 'Logo Browser';
+
+  // Die ausgewählte Farbe erneut anwenden
+  document.querySelectorAll('.logo-container').forEach(container => {
+    container.style.backgroundColor = selectedColor;
+  });
+  document.querySelectorAll('.folder-container').forEach(container => {
+    container.style.backgroundColor = selectedColor;
+  });
+});
+
+// Eventlistener für die Farbauswahl hinzufügen
+document.querySelectorAll('.color-button').forEach(button => {
+  button.addEventListener('click', function() {
+    const selectedColor = this.dataset.color; // Ausgewählte Farbe festlegen
+    // Farbe für alle Logo-Container festlegen
+    document.querySelectorAll('.logo-container').forEach(container => {
+      container.style.backgroundColor = selectedColor;
+    });
+    // Farbe für alle Folder-Container festlegen
+    document.querySelectorAll('.folder-container').forEach(container => {
+      container.style.backgroundColor = selectedColor;
+    });
+    // Hintergrundfarbe für die gesamte Webseite festlegen
+    const bodyColors = {
+      "#1E2928": "#152021",   // Cappuccino
+      "#1A1E11": "#12120C",   // Nature
+      "#112726": "#0C1C1B",   // Ocean
+      "#221909": "#171106",   // Terminal
+      "#2C0D23": "#21091D",   // Nightlife
+      "#131025": "#0D0B1A",   // Purple
+      "#0A0A0A": "#000000"    // Amoled
+    };
+    document.body.style.backgroundColor = bodyColors[selectedColor]; // Hintergrundfarbe der Webseite setzen
+  });
+});
+
+var totalCount = 0;
+var totalFolders = 0;
+var foldersToCheck = ["https://tef.noobish.eu/logos/"];
+
+// Funktion zum Zählen der SVG- und PNG-Dateien sowie der Ordner rekursiv
+function countFiles() {
+    var folder = foldersToCheck.pop();
+    if (!folder) {
+        $("#fileCount").html;
+        return;
+    }
+    console.log("Überprüfe Ordner: " + folder);
+    
+    $.ajax({
+        url: folder,
+        success: function(data) {
+            $(data).find('a').each(function() {
+                var link = $(this).attr('href');
+                // Korrigiere den Ordnerpfad, wenn nötig
+                if (link.charAt(0) === '/') {
+                    link = link.slice(1); // Entferne führenden Schrägstrich
+                }
+                if (link === '../' || link === 'scripts/' || link === 'images/') return; // Verhindere Endlosschleife und ignoriere bestimmte Ordner
+                var itemUrl = folder + link;
+                if (link.charAt(link.length - 1) === '/') {
+                    foldersToCheck.push(itemUrl);
+                    totalFolders++;
+                    console.log("Neuer Ordner hinzugefügt: " + itemUrl);
+                } else if (link.endsWith('.svg') || link.endsWith('.png')) {
+                    totalCount++;
+                }
+            });
+            countFiles();
+        },
+        error: function(xhr, status, error) {
+            console.error("Fehler beim Abrufen des Ordners " + folder + ": " + error);
+            countFiles(); // Fortsetzen mit dem nächsten Ordner, auch wenn ein Fehler aufgetreten ist
+        }
+    });
+}
+
+// Rufe die Funktion zum Zählen der Dateien und Ordner auf
+$(document).ready(function() {
+    countFiles();
+});
+
+$(document).ajaxStop(function() {
+    totalFolders /= 2;
+	totalCount -= 2;
+    $("#fileCount").html("Logos: " + totalCount + "<br>Countries: " + totalFolders);
+});
+
+// Füge die Gesamtanzahl der Dateien am oberen Rand neben dem Farbumschalter ein
+$(document).ready(function() {
+    var fileCountHTML = "<div id='fileCount' style='position: absolute; top: 25px; right: 0px; background-color: transparent; color: white; padding: 5px; border: 0px solid white; z-index: 9999;'</div>";
+    document.body.insertAdjacentHTML('beforeend', fileCountHTML);
+    $("body").append(fileCountHTML);
+});
+
+
+
+</script>
+
+</body>
+</html>
