@@ -83,7 +83,7 @@ if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
 }
 
 // Set interval to check PI code
-setInterval(CheckPI, 1500);
+//setInterval(CheckPI, 1500);
 
 // Function to check PI code
 function CheckPI() {
@@ -480,3 +480,89 @@ const countryList = [
     { itu_code: 'ZWE', country_code: 'zw', country: 'Zimbabwe' }
     // Füge weitere Länder hier hinzu...
 ];
+
+function updateStationLogo2(currentImagePath, piCode, ituCode, sender) {
+    const tooltipContainer = $('.panel-30');
+
+    let oldPiCode = logoImage.attr('data-picode');
+    let oldItuCode = logoImage.attr('data-itucode');
+
+    if (piCode === '' || piCode.includes('?')) {
+        piCode = '?';
+    }
+    if (ituCode === '' || ituCode.includes('?')) {
+        ituCode = '?';
+    }
+
+    if (piCode !== oldPiCode || ituCode !== oldItuCode) {
+        logoImage.attr('data-picode', piCode);
+        logoImage.attr('data-itucode', ituCode)
+
+        if(piCode === '?' || ituCode === '?') {
+            logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo');
+            return;
+        }
+
+        const paths = [
+            `${localpath}${piCode}.gif`,
+            `${localpath}${piCode}.svg`,
+            `${localpath}${piCode}.png`,
+            `${serverpath}${ituCode}/${piCode}.gif`,
+            `${serverpath}${ituCode}/${piCode}.svg`,
+            `${serverpath}${ituCode}/${piCode}.png`
+        ];
+
+        function checkNext(index) {
+            $.ajax({
+                type: "HEAD",
+                url: paths[index],
+                dataPiCode: piCode,
+                dataItuCode: ituCode,
+                success:
+                    function(message) {
+                        let attrPiCode = logoImage.attr('data-picode');
+                        let attrItuCode = logoImage.attr('data-itucode');
+                        if (this.dataPiCode !== logoImage.attr('data-picode') || this.dataItuCode !== logoImage.attr('data-itucode')) {
+                            console.log("Ignoriere überholtes Logo für piCode " + this.dataPiCode + " und ituCode " + this.dataItuCode);
+                        } else {
+                            logoImage.attr('src', paths[index]).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
+                            console.log("dataPiCode: " + this.dataPiCode + "  dataItuCode: " + this.dataItuCode);
+                            //LogoSearch(piCode, sender); // Call LogoSearch() if a logo is found
+                        }
+                    },
+                error:
+                    function(jqXHR, textStatus, errorThrown) {
+                        if (this.dataPiCode !== logoImage.attr('data-picode') || this.dataItuCode !== logoImage.attr('data-itucode')) {
+                            console.log("Ignoriere überholtes Logo für piCode " + this.dataPiCode + " und ituCode " + this.dataItuCode);
+                            return;
+                        }
+                        if (index < paths.length) {
+                            checkNext(index + 1);
+                        } else {
+                            logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo');
+                            //LogoSearch(piCode, sender); // Call LogoSearch() if no logo is found
+                        }
+                    }
+            });
+        }
+
+        checkNext(0);
+    }
+}
+
+function waitForServer() {
+    if(typeof socket !== "undefined"){
+        //variable exists, do what you want
+        window.socket.addEventListener("message", (event) => {
+            parsedData = JSON.parse(event.data);
+            //console.log("Socket Text: " + JSON.stringify(parsedData));
+            let sender = parsedData.txInfo.station.replace(/%/g, '%25');
+            //console.log("PI: " + parsedData.pi + " ITU: " + parsedData.txInfo.itu + " Sender: " + sender);
+            updateStationLogo2(defaultServerPath, parsedData.pi, parsedData.txInfo.itu, sender);
+        });
+    }
+    else{
+        setTimeout(waitForServer, 250);
+    }
+}
+waitForServer();
