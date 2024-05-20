@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                ///
-///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.12)                        ///
+///  STATION LOGO INSERT SCRIPT FOR FM-DX-WEBSERVER (V3.12a)                       ///
 ///                                                                                /// 
 ///  Thanks to Ivan_FL, Adam W, mc_popa & noobish for the ideas and design!  	   ///
 ///                                                                                ///
 ///  New Logo Files (png/svg) and Feedback are welcome!                            ///
 ///  73! Highpoint                                                                 ///
-///                                                          last update: 17.05.24 ///
+///                                                          last update: 20.05.24 ///
 //////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -83,7 +83,7 @@ if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
 }
 
 // Set interval to check PI code
-setInterval(CheckPI, 200);
+setInterval(CheckPI, 1500);
 
 // Function to check PI code
 function CheckPI() {
@@ -97,101 +97,101 @@ function CheckPI() {
         logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo');
         logoImage.css('cursor', 'default'); 
         tooltipContainer.off('click'); // Klickereignis entfernen
-        window.piCode = '';
-        window.ituCode = '';	
+        window.previousPiCode = '';
+        window.previousItuCode = '';
+        // Set previousCurrentStation to '' with a delay of 1 second
+        setTimeout(() => {
+            window.previousCurrentStation = '';
+        }, 3000);
     } else {
         updateStationLogo(piCode);
     }
 }
 
-// Function to update station logo
 function updateStationLogo(piCode) {
+
     const ituCode = $('#data-station-itu').text().trim();
     const tooltipContainer = $('.panel-30');
-    let currentStation = $('#data-station-name').text().trim(); // Retrieve current station name
-    currentStation = currentStation.replace(/\s+/g, ''); // Remove all whitespace
+    let currentStation = $('#data-station-name').text().trim();
+    currentStation = currentStation.replace(/\s+/g, '').toUpperCase(); // Remove all whitespace and convert to uppercase
 
-    // Log the current station name without whitespace
-    // console.log(`Current Station without whitespace: ${currentStation}`);
+    // Check if the currentStation is the same as the previous one
+    if (currentStation === window.previousCurrentStation) {
+        console.log("Skipping search as currentStation are unchanged.");
+        return; // Skip the search
+    }
+	
+    // Update previous station values
+    window.previousCurrentStation = currentStation;
+    window.previousPiCode = piCode;
+    window.previousItuCode = ituCode;
 
-    // Check if PI code or ITU code has changed
-    if (piCode !== window.piCode || ituCode !== window.ituCode) {
-        window.piCode = piCode;
-        window.ituCode = ituCode;
-        console.log(`piCode: ${piCode}`);
-        console.log(`ituCode: ${ituCode}`);
+    // Define paths for logo images
+    const paths = [
+        `${localpath}${piCode}_${currentStation}`,
+        `${localpath}${piCode}`,
+        `${serverpath}${ituCode}/${piCode}_${currentStation}`,
+        `${serverpath}${ituCode}/${piCode}`
+    ];
 
-        // Define paths for logo images
-        const paths = [
-            `${localpath}${piCode}_${currentStation}`, // Local path with piCode and currentStation
-            `${localpath}${piCode}`, // Local path with piCode only
-            `${serverpath}${ituCode}/${piCode}_${currentStation}`, // Server path with piCode and currentStation
-            `${serverpath}${ituCode}/${piCode}` // Server path with piCode only
-        ];
+    const supportedExtensions = ['png', 'svg', 'gif'];
+    let found = false;
 
-        const supportedExtensions = ['png', 'svg', 'gif']; // List of supported file extensions
+    function checkNextPath(index) {
+        if (found || index >= paths.length) {
+            if (!found) {
+                logoImage.attr('src', emptyServerPath).attr('alt', 'Empty Logo').off('click');
+                logoImage.css('cursor', 'default');
+                LogoSearch(piCode, found);
+            }
+            return;
+        }
 
-        let found = false;
+        const path = paths[index];
 
-        // Function to check each path for logo image
-        function checkNextPath(index) {
-            if (found || index >= paths.length) {
+        function checkNextExtension(extensionIndex) {
+            if (found || extensionIndex >= supportedExtensions.length) {
                 if (!found) {
-                    logoImage.attr('src', emptyServerPath).attr('alt', 'Empty Logo').off('click');
-                    logoImage.css('cursor', 'default');
-                    LogoSearch(piCode, found); // Call LogoSearch with found = false if no logo is found
+                    checkNextPath(index + 1);
                 }
                 return;
             }
 
-            const path = paths[index];
-
-            // Function to check each extension for logo image
-            function checkNextExtension(extensionIndex) {
-                if (found || extensionIndex >= supportedExtensions.length) {
-                    if (!found) {
-                        checkNextPath(index + 1); // If no supported extension found, move to the next path
-                    }
-                    return;
+            const xhr = new XMLHttpRequest();
+            xhr.open('HEAD', `${path}.${supportedExtensions[extensionIndex]}`, true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log(`Downloading image from ${path}.${supportedExtensions[extensionIndex]}`);
+                    logoImage.attr('src', `${path}.${supportedExtensions[extensionIndex]}`).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
+                    found = true;
+                    LogoSearch(piCode, found);
+                } else if (xhr.status === 404) {
+                    checkNextExtension(extensionIndex + 1);
                 }
-
-                const xhr = new XMLHttpRequest();
-                xhr.open('HEAD', `${path}.${supportedExtensions[extensionIndex]}`, true);
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        console.log(`Downloading image from ${path}.${supportedExtensions[extensionIndex]}`);
-                        logoImage.attr('src', `${path}.${supportedExtensions[extensionIndex]}`).attr('alt', `Logo for station ${piCode}`).css('display', 'block');
-                        found = true;
-                        LogoSearch(piCode, found); // Call LogoSearch with found = true if logo is found
-                    } else if (xhr.status === 404) {
-                        checkNextExtension(extensionIndex + 1); // Try next extension if file not found
-                    }
-                };
-                xhr.onerror = function () { // Handling error cases
-                    checkNextExtension(extensionIndex + 1); // Try next extension
-                };
-                xhr.send();
-            }
-
-            checkNextExtension(0); // Start checking extensions
+            };
+            xhr.onerror = function () {
+                checkNextExtension(extensionIndex + 1);
+            };
+            xhr.send();
         }
 
-        checkNextPath(0); // Start checking paths
+        checkNextExtension(0);
     }
+
+    checkNextPath(0);
 }
 
-// Function for logo search
+// Funktion zur Suche nach dem Logo
 function LogoSearch(piCode, found) {
-
-	var currentStation = ''; // Global variable to store the currentStation
-    const currentPiCode = piCode; // Get the current piCode
+    const currentPiCode = piCode; // Aktuellen piCode abrufen
     const tooltipContainer = $('.panel-30');
+	      const currentStation = $('#data-station-name').text().trim();
     tooltipContainer.css('background-color', '').off('click').css('cursor', 'auto');
 
     function addClickListener(currentStation, found) {
         const ituCode = $('#data-station-itu').text().trim();
-        const country_name = getCountryNameByItuCode(ituCode); // Get the country name for the ITU code
-        const ituCodecurrentStation = currentStation + ' ' + country_name; // Append country name to currentStation
+        const country_name = getCountryNameByItuCode(ituCode); // Ländercode für den ITU-Code abrufen
+        const ituCodecurrentStation = currentStation + ' ' + country_name; // Ländercode zum currentStation hinzufügen
         const searchQuery = ituCodecurrentStation + ' filetype:png OR filetype:svg Radio&tbs=sbd:1&udm=2';
         tooltipContainer.css('background-color', 'var(--color-2)').on('click', () => {
             window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
@@ -202,31 +202,10 @@ function LogoSearch(piCode, found) {
             OnlineradioboxSearch(currentStation, ituCode);
         }
     }
+ 
+    addClickListener(currentStation, found);
 
-	let isCheckSenderSet = false; // Flag to track if setTimeout for checkSender is set
-
-	function checkSender() {
-		const currentStation = $('#data-station-name').text().trim();
-
-		//console.log(`currentStation: ${currentStation}`);
-		//console.log(`window.previousSender: ${window.previousSender}`);
-		//console.log(`window.previouspiCode: ${window.previouspiCode}`);
-		//console.log(`window.previousFrequency: ${window.previousFrequency}`);  
-
-    if ((currentStation && window.previousSender !== currentStation && window.previouspiCode !== currentPiCode) || (currentStation && currentStation && window.previousSender === currentStation && window.previouspiCode === currentPiCode)) {
-        console.log(`loop pass end`);
-        window.previousSender = currentStation;
-        window.previouspiCode = currentPiCode;
-        addClickListener(currentStation, found);
-    } else {
-        // Wenn die Bedingung nicht erfüllt ist, rufe die Funktion erneut auf
-        setTimeout(checkSender, 500);
-    }
-}
-
-checkSender();
-
-}
+   }
 
 // Function to query the country name using the ITU code
 function getCountryNameByItuCode(ituCode) {
@@ -281,13 +260,13 @@ async function parsePage(url, currentStation) {
         
         // Further processing steps here, such as assigning the link to an image element or other actions
         console.log('The selected image source is:', selectedImgSrc);
-		logoImage.attr('src', selectedImgSrc).attr('alt', 'Onlineradiobox Logo');
-		logoImage.css('cursor', 'pointer'); // Mauszeiger auf Klickcursor setzen
+        logoImage.attr('src', selectedImgSrc).attr('alt', 'Onlineradiobox Logo');
+        logoImage.css('cursor', 'pointer'); // Mauszeiger auf Klickcursor setzen
     } catch (error) {
         // Handle errors fetching and processing the page
         console.error('Error fetching and processing the page:', error);
-		logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo').off('click');
-		logoImage.css('cursor', 'default'); 
+        logoImage.attr('src', defaultServerPath).attr('alt', 'Default Logo').off('click');
+        logoImage.css('cursor', 'default'); 
     }
 }
 
@@ -307,7 +286,7 @@ async function OnlineradioboxSearch(currentStation, ituCode) {
 
         // Call the function to fetch and process the search page HTML content via the proxy
         await parsePage(searchUrl, currentStation); // Pass currentStation to parsePage
-    }
+}
 
 // Die Liste der Länder und ihrer ITU-Codes
 const countryList = [
